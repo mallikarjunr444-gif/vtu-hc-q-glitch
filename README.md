@@ -307,6 +307,6 @@ Released under the [MIT License](LICENSE). See `LICENSE` for details.
 **Q-Glitch** · Team ID `VTU-QFF-HC-0190` · Tier `Online`
 · Built with ⚛️ Qiskit for the VTU-QFF Hackathon
 
-[⬆ Back to Top](#Q-Glitch)
+[⬆ Back to Top](#q-glitch)
 
 </div>
