@@ -33,6 +33,7 @@
 - [Project Structure](#-project-structure)
 - [Benchmark Results & Findings](#-benchmark-results--findings)
 - [How to Run](#-how-to-run)
+- [Demo Video & Working Prototype](#-demo-video--working-prototype)
 - [How to Push Code](#-how-to-push-code)
 - [Submission Checklist](#-submission-checklist)
 - [Resources](#-resources)
@@ -148,6 +149,8 @@ vtu-hc-q-glitch/
 │   ├── model_comparison.png   # Side-by-side performance comparison chart
 │   ├── vqc_training.png       # Variational circuit loss convergence curve
 │   └── evaluation_report.txt  # Comprehensive benchmark metrics report
+├── docs/                      # Presentation slide deck & submission documentation
+│   └── presentation_deck.md   # Complete PPT content for portal submission (https://quc.vtu.ac.in)
 ├── notebooks/
 │   └── exploration.ipynb      # Interactive Jupyter notebook & experimental analysis
 └── data/
@@ -244,6 +247,17 @@ pytest -v
 # Or run with standard Python test runner:
 python3 -m unittest tests/test_pipeline.py
 ```
+
+---
+
+## 🎬 Demo Video & Working Prototype
+
+- **Working Prototype (Web Dashboard):** The interactive clinical dashboard is fully operational and can be launched locally using:
+  ```bash
+  streamlit run app/dashboard.py
+  ```
+- **Demo Video (YouTube):** [Watch the Q-Glitch Prototype Demo on YouTube](https://youtu.be/placeholder-demo-link) *(replace with your recorded YouTube demo link before final submission on Oct 23, 3:00 PM)*.
+- **Solution PPT Slide Deck:** Complete presentation deck ready for upload on the hackathon portal ([quc.vtu.ac.in](https://quc.vtu.ac.in)) is provided in [`docs/presentation_deck.md`](docs/presentation_deck.md).
 
 ---
 
