@@ -74,35 +74,52 @@ class RareDiseaseCategorizer:
         ox_stress = features.get("oxidative_stress", 1.0)
         cv_risk = features.get("cardiovascular_risk", 2.0)
 
+        def _norm(val, max_scale=10.0):
+            val = float(val)
+            if val > 1.0:
+                return min(val / max_scale, 1.0)
+            return max(0.0, min(val, 1.0))
+
+        lmna_norm = _norm(lmna, 10.0)
+        progerin_norm = _norm(progerin, 10.0)
+        telomere_norm = max(0.0, min((10.0 - float(telomere)) / 8.0, 1.0))
+        growth_norm = _norm(growth, 1.0)
+
+        skin_abnormal = 1.0 - _norm(skin, 1.0)
+        joint_abnormal = 1.0 - _norm(joint, 1.0)
+
+        crp_norm = min(float(crp) / 30.0, 1.0)
+        plt_abnormal = max(0.0, min((250.0 - float(platelets)) / 200.0, 1.0))
+
+        dna_norm = min(float(dna_damage) / 2.0, 1.0)
+        ox_norm = min(float(ox_stress) / 3.0, 1.0)
+        cv_norm = _norm(cv_risk, 1.0)
+
         # Affinity scores (0.0 to 1.0)
-        # Laminopathy affinity
         laminopathy_score = (
-            (lmna / 10.0) * 0.35 +
-            (progerin / 10.0) * 0.35 +
-            max(0.0, (10.0 - telomere) / 10.0) * 0.15 +
-            (growth / 10.0) * 0.15
+            0.40 * lmna_norm +
+            0.35 * progerin_norm +
+            0.15 * telomere_norm +
+            0.10 * growth_norm
         )
 
-        # Lysosomal affinity
         lysosomal_score = (
-            (min(crp / 30.0, 1.0)) * 0.35 +
-            max(0.0, (250.0 - platelets) / 200.0) * 0.35 +
-            (cv_risk / 10.0) * 0.15 +
-            (ox_stress / 3.0) * 0.15
+            0.40 * crp_norm +
+            0.35 * plt_abnormal +
+            0.15 * ox_norm +
+            0.10 * cv_norm
         )
 
-        # Connective tissue affinity
         connective_score = (
-            max(0.0, (10.0 - skin) / 10.0) * 0.40 +
-            max(0.0, (10.0 - joint) / 10.0) * 0.40 +
-            (growth / 10.0) * 0.20
+            0.45 * skin_abnormal +
+            0.45 * joint_abnormal +
+            0.10 * growth_norm
         )
 
-        # Metabolic affinity
         metabolic_score = (
-            (dna_damage / 2.0) * 0.40 +
-            (ox_stress / 3.0) * 0.40 +
-            (cv_risk / 10.0) * 0.20
+            0.45 * dna_norm +
+            0.40 * ox_norm +
+            0.15 * cv_norm
         )
 
         scores = {

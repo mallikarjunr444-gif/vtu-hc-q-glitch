@@ -164,6 +164,47 @@ class TestEvaluator(unittest.TestCase):
         self.assertEqual(evaluator.get_best_model("f1_score"), "Model B")
 
 
+class TestDifferentialDiagnosis(unittest.TestCase):
+    """Test rare-disease categorization engine."""
+
+    def test_laminopathy_classification(self):
+        from src.differential_diagnosis import RareDiseaseCategorizer
+        features = {
+            "lmna_mutation_score": 9.5,
+            "progerin_level": 8.0,
+            "telomere_length": 2.5,
+            "growth_retardation_score": 0.9,
+            "skin_elasticity": 0.1,
+            "joint_mobility": 0.3,
+        }
+        res = RareDiseaseCategorizer.classify_category(features)
+        self.assertIn("Laminopathy", res["primary_category"])
+        self.assertTrue(res["confidence"] > 0.25)
+        self.assertIn("LMNA mutation", res["primary_biomarkers"])
+
+    def test_categories_metadata(self):
+        from src.differential_diagnosis import RareDiseaseCategorizer
+        self.assertIn("laminopathy", RareDiseaseCategorizer.CATEGORIES)
+        self.assertIn("lysosomal", RareDiseaseCategorizer.CATEGORIES)
+        self.assertIn("connective_tissue", RareDiseaseCategorizer.CATEGORIES)
+        self.assertIn("metabolic", RareDiseaseCategorizer.CATEGORIES)
+
+
+class TestModelStore(unittest.TestCase):
+    """Test model persistence manager."""
+
+    def test_save_and_load(self):
+        from src.model_store import save_trained_pipeline, load_trained_pipeline
+        bundle = {"test_key": "test_value", "accuracy": 0.95}
+        test_path = "/tmp/test_bundle.pkl"
+        save_trained_pipeline(bundle, test_path)
+        loaded = load_trained_pipeline(test_path)
+        self.assertIsNotNone(loaded)
+        self.assertEqual(loaded["test_key"], "test_value")
+        if os.path.exists(test_path):
+            os.remove(test_path)
+
+
 if __name__ == "__main__":
     if pytest is not None and "pytest" in sys.modules:
         pytest.main([__file__, "-v"])

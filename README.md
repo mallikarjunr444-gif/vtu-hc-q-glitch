@@ -129,22 +129,28 @@ flowchart LR
 ```text
 vtu-hc-q-glitch/
 ├── README.md                  # Comprehensive project documentation & architecture
-├── requirements.txt           # Project dependencies (Qiskit 1.x, Aer, Streamlit, Scikit-Learn)
+├── requirements.txt           # Project dependencies (Qiskit 1.x, Aer, Streamlit, FastAPI)
 ├── .gitignore                 # Optimized Python & quantum artifact exclusions
 ├── app/
-│   └── dashboard.py           # Streamlit clinical diagnostic dashboard & quantum visualizer
+│   └── dashboard.py           # Multi-workspace clinical diagnostic platform & triage portal
+├── api/
+│   └── server.py              # Production FastAPI REST backend for hospital/EHR integration
 ├── src/
 │   ├── __init__.py            # Package initialization
 │   ├── config.py              # Centralized hyperparameters & pipeline configuration
 │   ├── data_generator.py      # Multimodal clinical & genomic biomarker generator
 │   ├── preprocessing.py       # Multimodal fusion, scaling & quantum-compatible PCA reduction
+│   ├── differential_diagnosis.py # Rare-disease categorization & affinity scoring engine
+│   ├── model_store.py         # Pipeline serialization & zero-latency loading
 │   ├── classical_models.py    # Baseline models (SVM, Random Forest, XGBoost, MLP)
 │   ├── quantum_kernel.py      # Quantum Feature Map (ZZFeatureMap) & QSVC Kernel Classifier
 │   ├── quantum_vqc.py         # Variational Quantum Classifier (RealAmplitudes ansatz + COBYLA)
 │   ├── evaluation.py          # Benchmark metrics (Accuracy, ROC-AUC, F1, Recall, Confusion Matrix)
 │   └── main.py                # End-to-end automated orchestration pipeline
+├── models/
+│   └── qglitch_bundle.pkl     # Pre-trained pipeline weights & preprocessor bundle
 ├── tests/
-│   └── test_pipeline.py       # Comprehensive unit & integration test suite
+│   └── test_pipeline.py       # Comprehensive 17-test unit & integration test suite
 ├── results/                   # Experimental benchmark plots & evaluation reports
 │   ├── model_comparison.png   # Side-by-side performance comparison chart
 │   ├── vqc_training.png       # Variational circuit loss convergence curve
@@ -238,9 +244,19 @@ Open the interactive Jupyter experimental walkthrough:
 jupyter lab notebooks/exploration.ipynb
 ```
 
-### 7. Run the Unit & Integration Tests
+### 7. Run the Production REST API Server
 
-Execute the complete test suite:
+Launch the FastAPI backend serving real-time predictions and OpenAPI documentation (`/docs`):
+
+```bash
+python3 -m uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Interactive documentation is available at `http://localhost:8000/docs`.
+
+### 8. Run the Unit & Integration Tests
+
+Execute the 17-test validation suite:
 
 ```bash
 pytest -v
