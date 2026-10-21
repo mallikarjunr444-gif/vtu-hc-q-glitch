@@ -41,73 +41,66 @@
 
 ## 👥 Team Members (GitHub IDs)
 
-> Members are added to this repository as **collaborators** and must accept the
-> GitHub invitation before they can push. Add your GitHub username below.
-
 | # | Name | GitHub Username | Role |
 | :-- | :--- | :--- | :--- |
-| 1 | _Add your name_ | _your-github-username_ | _Team Lead_ |
-| 2 | _Add your name_ | _your-github-username_ | _Developer_ |
-| 3 | _Add your name_ | _your-github-username_ | _Developer_ |
-
-<!--
-Optional: add a plain list instead of the table above.
-- @username1
-- @username2
--->
+| 1 | Mallikarjun.R | [@mallikarjunr444-gif](https://github.com/mallikarjunr444-gif) | Team Lead |
+| 2 | Mohammed Adil | [@mohammedadil-05](https://github.com/mohammedadil-05) | Developer |
+| 3 | Mallanagouda M | [@Mallanagouda-M](https://github.com/Mallanagouda-M) | Developer |
 
 ---
 
 ## ❓ Problem Statement
 
-<!--
-State the problem you are solving. Be specific: what is broken or missing,
-who experiences it, and why does it matter. Link to the official problem
-statement from the brief if one applies.
--->
+**Problem Statement:** Multimodal Quantum AI for Rare-Disease Prediction  
+**Track:** Quantum + AI & ML  
 
-**Problem:** _Describe the problem in 2–3 sentences._
+### 📋 Brief
+Rare diseases are difficult to identify because symptoms, genetic information, and clinical measurements can be complex, limited, and distributed across multiple data sources. This project proposes a **multimodal AI system** that combines different types of patient data and uses **hybrid quantum-classical machine learning** to predict potential rare-disease categories.
 
-**Why it matters:** _Explain the impact or opportunity._
+The system integrates classical machine-learning techniques with **Qiskit-based quantum circuits** to classify patient data, compare prediction performance, and explore whether quantum-enhanced feature representations can improve rare-disease prediction.
 
-**Track / Category:** _Online / Offline · Track 1 / Track 2 · <domain>_
+### 🎯 Key Objectives
+- **Combine multiple clinical data modalities** (phenotypic, genetic, and tabular clinical markers) for holistic prediction.
+- **Implement a hybrid quantum-classical model using Qiskit** (Quantum Feature Maps, QSVM / Quantum Kernels, and Variational Quantum Classifiers / VQC).
+- **Compare quantum-model performance with classical ML baselines** (SVM, Random Forest, XGBoost, and classical neural networks).
+- **Provide predictions and evaluation metrics through a software dashboard** for transparent clinical decision support.
+- **Investigate the model's limitations** when training data is scarce, high-dimensional, or severely imbalanced.
 
 ---
 
 ## 💡 Proposed Solution
 
-<!--
-Describe your solution. Keep it concrete: the core idea, the user flow, and
-the quantum/ML technique you are applying.
--->
+**Solution:** An end-to-end multimodal hybrid quantum-classical intelligence pipeline that ingests heterogeneous patient clinical metrics and phenotypic features, reduces dimensionality through quantum feature encoding, and leverages Qiskit-powered quantum kernels (QSVC) and parameterized quantum circuits (VQC) alongside classical ensembling to accurately detect rare disease risk.
 
-**Solution:** _In 2–3 sentences, describe what you built._
+**Key Idea:** Quantum Hilbert space embedding via parameterized entanglement (`ZZFeatureMap`) captures subtle cross-feature correlations across disparate clinical modalities that classical linear or radial kernels struggle to resolve with scarce sample sizes.
 
-**Key idea:** _The one-line technical summary of your approach._
-
-**Why this works:** _How your approach addresses the problem statement._
+**Why this works:** Rare disease datasets suffer from the "curse of dimensionality" and small cohort sizes ($N \ll D$). Quantum feature maps exploit exponential state space without requiring massive training corpora, providing high-fidelity separation boundaries.
 
 ---
 
 ## 🧩 Approach & Architecture
 
-<!--
-Walk through how it works. A simple pipeline diagram in text or Mermaid is ideal.
--->
-
 ```mermaid
 flowchart LR
-    A[Input Data] --> B[Preprocessing]
-    B --> C[Quantum Circuit / Model]
-    C --> D[Post-processing]
-    D --> E[Output]
+    A[Multimodal Patient Data<br/>Clinical + Phenotypic] --> B[Feature Preprocessing &<br/>Dimensionality Reduction]
+    B --> C1[Classical Baseline<br/>SVM / RF / XGBoost]
+    B --> C2[Quantum Encoding<br/>ZZFeatureMap]
+    C2 --> D1[Quantum Kernel QSVC<br/>Fidelity State Overlap]
+    C2 --> D2[Variational Quantum Classifier<br/>Ansatz + Sampler/Estimator]
+    C1 --> E[Hybrid Decision Engine &<br/>Benchmarking]
+    D1 --> E
+    D2 --> E
+    E --> F[Interactive Diagnostic Dashboard &<br/>Explainability Report]
 ```
 
-1. **Input** — _what data goes in and in what format_
-2. **Preprocessing** — _cleaning, feature extraction, encoding_
-3. **Quantum core** — _the circuit, ansatz, or algorithm used_
-4. **Post-processing** — _decoding, measurement, scoring_
-5. **Output** — _what the user finally gets_
+1. **Multimodal Data Ingestion**: Patient clinical records, biomarker values, and phenotypic risk indicators.
+2. **Preprocessing**: Normalization, robust imputation, and PCA/Autoencoder feature projection suited for qubit constraints.
+3. **Quantum Core (Qiskit 1.x)**: 
+   - `ZZFeatureMap` parameterized circuits encoding non-linear interactions.
+   - `FidelityQuantumKernel` computing quantum kernel matrices on `AerSimulator`.
+   - Variational Quantum Classifiers (VQC) with `RealAmplitudes` parameterized ansatz.
+4. **Benchmarking & Validation**: Side-by-side evaluation (Accuracy, F1-score, Precision, Recall, ROC-AUC) against standard classical ML.
+5. **Clinical Dashboard**: Real-time patient assessment, confidence intervals, risk categorization, and quantum circuit visualization.
 
 ---
 
@@ -304,8 +297,16 @@ Released under the [MIT License](LICENSE). See `LICENSE` for details.
 
 <div align="center">
 
-**Q-Glitch** · Team ID `VTU-QFF-HC-0190` · Tier `Online`
-· Built with ⚛️ Qiskit for the VTU-QFF Hackathon
+**Q-Glitch** · Team ID `VTU-QFF-HC-0190` · Tier `Online`  
+Built with ⚛️ Qiskit for the VTU-QFF Hackathon — Visvesvaraya Technological University, Belagavi
+
+<br/>
+
+<small>
+© 2026 Visvesvaraya Technological University, Belagavi, in association with IBM Quantum. All rights reserved. Qiskit and IBM Quantum are trademarks of IBM Corporation.
+</small>
+
+<br/><br/>
 
 [⬆ Back to Top](#q-glitch)
 
