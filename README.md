@@ -15,8 +15,7 @@
 | **Team** | Q-Glitch |
 | **Team ID** | VTU-QFF-HC-0190 |
 | **Tier** | Online |
-| **Live Web App (GitHub Pages)** | [🌐 https://mallikarjunr444-gif.github.io/vtu-hc-q-glitch/](https://mallikarjunr444-gif.github.io/vtu-hc-q-glitch/) |
-| **Live Web App (Firebase Cloud)** | [⚡ https://medicus-labs.web.app](https://medicus-labs.web.app) |
+| **Live Interactive Web Platform** | [🌐 **https://mallikarjunr444-gif.github.io/vtu-hc-q-glitch/**](https://mallikarjunr444-gif.github.io/vtu-hc-q-glitch/) |
 | **Repository** | [vtu-hc-q-glitch](https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-q-glitch.git) |
 | **Organisation** | [vtu-qiskit-fall-fest-2026](https://github.com/vtu-qiskit-fall-fest-2026) |
 | **Event** | VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026 |
