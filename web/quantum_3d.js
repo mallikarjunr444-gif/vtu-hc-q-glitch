@@ -43,7 +43,7 @@
     container.appendChild(renderer.domElement);
 
     // Particle field
-    const particleCount = 750;
+    const particleCount = 1000;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
@@ -51,23 +51,23 @@
     const speeds = new Float32Array(particleCount);
 
     const color1 = new THREE.Color(0x00f5d4); // Cyan
-    const color2 = new THREE.Color(0x7c3aed); // Violet
+    const color2 = new THREE.Color(0x8b5cf6); // Electric Violet
     const color3 = new THREE.Color(0xec4899); // Magenta
 
-    const spreadX = 700;
-    const spreadY = 220;
-    const spreadZ = 600;
+    const spreadX = 850;
+    const spreadY = 280;
+    const spreadZ = 750;
 
     for (let i = 0; i < particleCount; i++) {
       const x = (Math.random() - 0.5) * spreadX;
-      const y = (Math.random() - 0.5) * spreadY - 20;
+      const y = (Math.random() - 0.5) * spreadY - 10;
       const z = (Math.random() - 0.5) * spreadZ;
 
       positions[i * 3] = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
       initialY[i] = y;
-      speeds[i] = 0.5 + Math.random() * 0.8;
+      speeds[i] = 0.6 + Math.random() * 0.9;
 
       // Color interpolation
       const t = Math.random();
@@ -87,15 +87,15 @@
     const ctx = canvas.getContext('2d');
     const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.3, 'rgba(0,245,212,0.8)');
-    grad.addColorStop(0.7, 'rgba(124,58,237,0.3)');
+    grad.addColorStop(0.35, 'rgba(0,245,212,0.9)');
+    grad.addColorStop(0.75, 'rgba(124,58,237,0.4)');
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 64, 64);
     const particleTexture = new THREE.CanvasTexture(canvas);
 
     const material = new THREE.PointsMaterial({
-      size: 4.5,
+      size: 7.5,
       map: particleTexture,
       transparent: true,
       vertexColors: true,
@@ -107,17 +107,17 @@
     scene.add(particles);
 
     // Dynamic wave mesh (representing quantum vacuum fluctuation)
-    const gridCols = 36;
-    const gridRows = 36;
-    const waveGeo = new THREE.PlaneGeometry(650, 650, gridCols, gridRows);
+    const gridCols = 40;
+    const gridRows = 40;
+    const waveGeo = new THREE.PlaneGeometry(800, 800, gridCols, gridRows);
     waveGeo.rotateX(-Math.PI / 2);
     waveGeo.translate(0, -90, 0);
 
     const waveMat = new THREE.MeshBasicMaterial({
-      color: 0x312e81,
+      color: 0x4338ca,
       wireframe: true,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.28,
     });
     const waveMesh = new THREE.Mesh(waveGeo, waveMat);
     scene.add(waveMesh);
@@ -204,6 +204,9 @@
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
     container.appendChild(renderer.domElement);
 
     // Lighting
