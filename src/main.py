@@ -163,17 +163,22 @@ def run_pipeline():
     report = evaluator.generate_report()
     print("\n" + report)
 
-    elapsed = time.time() - start_time
-    logger.info(f"Pipeline completed in {elapsed:.1f} seconds")
-
-    return {
+    from src.model_store import save_trained_pipeline
+    bundle = {
         "evaluator": evaluator,
         "classical": classical,
         "qsvm": qsvm,
         "vqc": vqc,
         "preprocessor": preprocessor,
         "dataset": dataset,
+        "vqc_history": vqc_history,
     }
+    save_trained_pipeline(bundle)
+
+    elapsed = time.time() - start_time
+    logger.info(f"Pipeline completed in {elapsed:.1f} seconds")
+
+    return bundle
 
 
 if __name__ == "__main__":
