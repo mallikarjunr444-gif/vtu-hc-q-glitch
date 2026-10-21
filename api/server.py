@@ -43,15 +43,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global model cache
+# Global model cache and thread lock for safe Qiskit inference
 MODEL_BUNDLE = None
+PREDICT_LOCK = threading.Lock()
 
 
 def get_bundle():
     """Retrieve or initialize the model bundle."""
     global MODEL_BUNDLE
     if MODEL_BUNDLE is None:
-        MODEL_BUNDLE = load_trained_pipeline()
+        with PREDICT_LOCK:
+            if MODEL_BUNDLE is None:
+                MODEL_BUNDLE = load_trained_pipeline()
     return MODEL_BUNDLE
 
 
@@ -133,83 +136,84 @@ def predict_patient(patient: PatientProfile):
     if bundle is None:
         raise HTTPException(status_code=503, detail="Model bundle not yet loaded. Run training first.")
 
-    preprocessor = bundle["preprocessor"]
-    classical_models = bundle["classical"]
-    qsvm = bundle["qsvm"]
-    vqc = bundle["vqc"]
+    with PREDICT_LOCK:
+        preprocessor = bundle["preprocessor"]
+        classical_models = bundle["classical"]
+        qsvm = bundle["qsvm"]
+        vqc = bundle["vqc"]
 
-    # Construct feature array (26 features matching order)
-    raw_vector = np.array([[
-        patient.age, patient.bmi, patient.heart_rate, patient.blood_pressure_sys,
-        patient.blood_pressure_dia, patient.cholesterol, patient.hemoglobin,
-        patient.white_blood_cells, patient.platelet_count, patient.creatinine,
-        patient.albumin, patient.c_reactive_protein,
-        patient.lmna_mutation_score, patient.zmpste24_expression,
-        patient.progerin_level, patient.telomere_length,
-        patient.dna_damage_index, patient.autophagy_marker,
-        patient.inflammatory_cytokine, patient.oxidative_stress,
-        patient.growth_retardation_score, patient.skin_elasticity,
-        patient.joint_mobility, patient.hair_density_index,
-        patient.cardiovascular_risk, patient.skeletal_abnormality
-    ]])
+        # Construct feature array (26 features matching order)
+        raw_vector = np.array([[
+            patient.age, patient.bmi, patient.heart_rate, patient.blood_pressure_sys,
+            patient.blood_pressure_dia, patient.cholesterol, patient.hemoglobin,
+            patient.white_blood_cells, patient.platelet_count, patient.creatinine,
+            patient.albumin, patient.c_reactive_protein,
+            patient.lmna_mutation_score, patient.zmpste24_expression,
+            patient.progerin_level, patient.telomere_length,
+            patient.dna_damage_index, patient.autophagy_marker,
+            patient.inflammatory_cytokine, patient.oxidative_stress,
+            patient.growth_retardation_score, patient.skin_elasticity,
+            patient.joint_mobility, patient.hair_density_index,
+            patient.cardiovascular_risk, patient.skeletal_abnormality
+        ]])
 
-    # Transform
-    X_cl = preprocessor.transform_classical(raw_vector)
-    X_q = preprocessor.transform_quantum(raw_vector)
+        # Transform
+        X_cl = preprocessor.transform_classical(raw_vector)
+        X_q = preprocessor.transform_quantum(raw_vector)
 
-    # 1. Classical predictions
-    rf_pred = classical_models.get_predictions("Random Forest", X_cl)
-    rf_risk = float(rf_pred["probabilities"][0])
+        # 1. Classical predictions
+        rf_pred = classical_models.get_predictions("Random Forest", X_cl)
+        rf_risk = float(rf_pred["probabilities"][0])
 
-    svm_pred = classical_models.get_predictions("SVM (RBF)", X_cl)
-    svm_risk = float(svm_pred["probabilities"][0])
+        svm_pred = classical_models.get_predictions("SVM (RBF)", X_cl)
+        svm_risk = float(svm_pred["probabilities"][0])
 
-    gb_pred = classical_models.get_predictions("Gradient Boosting", X_cl)
-    gb_risk = float(gb_pred["probabilities"][0])
+        gb_pred = classical_models.get_predictions("Gradient Boosting", X_cl)
+        gb_risk = float(gb_pred["probabilities"][0])
 
-    # 2. Quantum Kernel prediction (QSVC)
-    qsvm_risk = float(qsvm.predict_proba(X_q)[:, 1][0])
+        # 2. Quantum Kernel prediction (QSVC)
+        qsvm_risk = float(qsvm.predict_proba(X_q)[:, 1][0])
 
-    # 3. Variational Quantum Classifier (VQC)
-    vqc_proba = float(vqc.predict_proba(X_q)[:, 1][0])
+        # 3. Variational Quantum Classifier (VQC)
+        vqc_proba = float(vqc.predict_proba(X_q)[:, 1][0])
 
-    # Ensemble consensus risk
-    ensemble_risk = float(0.4 * rf_risk + 0.3 * qsvm_risk + 0.3 * vqc_proba)
+        # Ensemble consensus risk
+        ensemble_risk = float(0.4 * rf_risk + 0.3 * qsvm_risk + 0.3 * vqc_proba)
 
-    # Differential diagnosis
-    features_dict = patient.model_dump()
-    diff_diag = RareDiseaseCategorizer.classify_category(features_dict)
+        # Differential diagnosis
+        features_dict = patient.model_dump()
+        diff_diag = RareDiseaseCategorizer.classify_category(features_dict)
 
-    # Triage tier
-    if ensemble_risk >= 0.60:
-        triage_status = "CRITICAL / HIGH RISK"
-        recommendation = "Immediate referral to medical genetics and specialized rare disease center."
-    elif ensemble_risk >= 0.30:
-        triage_status = "MODERATE RISK"
-        recommendation = "Recommend comprehensive biomarker panel and secondary screening."
-    else:
-        triage_status = "LOW RISK / CONTROL"
-        recommendation = "Standard annual checkup. No significant rare disease indicators detected."
+        # Triage tier
+        if ensemble_risk >= 0.60:
+            triage_status = "CRITICAL / HIGH RISK"
+            recommendation = "Immediate referral to medical genetics and specialized rare disease center."
+        elif ensemble_risk >= 0.30:
+            triage_status = "MODERATE RISK"
+            recommendation = "Recommend comprehensive biomarker panel and secondary screening."
+        else:
+            triage_status = "LOW RISK / CONTROL"
+            recommendation = "Standard annual checkup. No significant rare disease indicators detected."
 
-    return {
-        "patient_id": patient.patient_id,
-        "ensemble_risk_probability": round(ensemble_risk, 4),
-        "triage_status": triage_status,
-        "clinical_recommendation": recommendation,
-        "differential_diagnosis": diff_diag,
-        "model_breakdown": {
-            "random_forest_risk": round(rf_risk, 4),
-            "svm_rbf_risk": round(svm_risk, 4),
-            "gradient_boosting_risk": round(gb_risk, 4),
-            "quantum_kernel_qsvc_risk": round(qsvm_risk, 4),
-            "variational_quantum_vqc_risk": round(vqc_proba, 4),
-        },
-        "quantum_metrics": {
-            "n_qubits": CONFIG.quantum.n_qubits,
-            "feature_map": "ZZFeatureMap",
-            "quantum_state_rotation_angles": [round(float(a), 4) for a in X_q[0]],
+        return {
+            "patient_id": patient.patient_id,
+            "ensemble_risk_probability": round(ensemble_risk, 4),
+            "triage_status": triage_status,
+            "clinical_recommendation": recommendation,
+            "differential_diagnosis": diff_diag,
+            "model_breakdown": {
+                "random_forest_risk": round(rf_risk, 4),
+                "svm_rbf_risk": round(svm_risk, 4),
+                "gradient_boosting_risk": round(gb_risk, 4),
+                "quantum_kernel_qsvc_risk": round(qsvm_risk, 4),
+                "variational_quantum_vqc_risk": round(vqc_proba, 4),
+            },
+            "quantum_metrics": {
+                "n_qubits": CONFIG.quantum.n_qubits,
+                "feature_map": "ZZFeatureMap",
+                "quantum_state_rotation_angles": [round(float(a), 4) for a in X_q[0]],
+            }
         }
-    }
 
 
 # Mount modern interactive web platform static files at root
