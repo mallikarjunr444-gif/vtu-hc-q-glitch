@@ -162,6 +162,11 @@
     },
   };
 
+  // Preset aliases matching index.html button data-preset values
+  PRESETS.progeria = PRESETS.laminopathy;
+  PRESETS.gaucher = PRESETS.lysosomal;
+  PRESETS.ehlers = PRESETS.connective;
+
   // Slider field configurations mapping IDs to labels, units, and formatting
   const SLIDER_CONFIGS = {
     'input-age': { badgeId: 'val-age', format: (v) => `${Math.round(v)} yrs` },
@@ -258,11 +263,12 @@
      4. TABS & PRESETS
      ========================================================================== */
   function initTabs() {
-    const tabButtons = document.querySelectorAll('.category-tab');
+    const tabButtons = document.querySelectorAll('.panel-tab, .category-tab');
     const tabPanels = document.querySelectorAll('.tab-content');
 
     tabButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
         tabButtons.forEach((b) => b.classList.remove('active'));
         tabPanels.forEach((p) => p.classList.remove('active'));
 
@@ -275,9 +281,10 @@
   }
 
   function initPresetButtons() {
-    const presetPills = document.querySelectorAll('.preset-pill');
+    const presetPills = document.querySelectorAll('.archetype-btn, .preset-pill');
     presetPills.forEach((pill) => {
-      pill.addEventListener('click', () => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
         presetPills.forEach((p) => p.classList.remove('active'));
         pill.classList.add('active');
         const presetKey = pill.getAttribute('data-preset');
@@ -686,21 +693,17 @@
     if (!container) return;
 
     container.innerHTML = '';
-    const qubitNames = ['q0 (LMNA)', 'q1 (PROG)', 'q2 (TELO)', 'q3 (GROWTH)', 'q4 (CARD)', 'q5 (SKEL)'];
+    const qubitShort = ['LMNA', 'PROG', 'TELO', 'GROWTH', 'CARD', 'SKEL'];
 
     angles.forEach((rad, idx) => {
-      const pct = ((rad / Math.PI) * 100).toFixed(1);
-      const deg = Math.round((rad * 180) / Math.PI);
-
+      const pct = Math.min(100, Math.max(0, ((rad / Math.PI) * 100))).toFixed(1);
       const item = document.createElement('div');
-      item.className = 'qubit-bar-item';
+      item.className = 'qubit-node-box';
       item.innerHTML = `
-        <div class="q-label">
-          <span>${qubitNames[idx] || `q${idx}`}</span>
-          <strong>θ=${rad} rad (${deg}°)</strong>
-        </div>
-        <div class="q-track">
-          <div class="q-fill" style="width: ${pct}%;"></div>
+        <span class="q-id">q${idx} (${qubitShort[idx]})</span>
+        <span class="q-angle">${rad} rad</span>
+        <div class="q-bar-mini">
+          <div class="q-bar-fill" style="width: ${pct}%;"></div>
         </div>
       `;
       container.appendChild(item);

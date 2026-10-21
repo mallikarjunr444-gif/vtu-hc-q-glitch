@@ -52,7 +52,7 @@ html {
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: #070913;
   color: var(--text-main);
   font-family: var(--font-body);
   line-height: 1.6;
@@ -68,9 +68,14 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.75;
+  opacity: 0.9;
+}
+
+body > *:not(#quantum-canvas-container) {
+  position: relative;
+  z-index: 1;
 }
 
 .container {
@@ -958,46 +963,51 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .qubit-angle-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.4rem;
 }
 
 .qubit-node-box {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.25rem;
+  padding: 0.45rem 0.2rem;
   text-align: center;
+  min-width: 0;
 }
 
 .q-id {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   color: var(--accent-purple);
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .q-angle {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #fff;
   display: block;
   margin: 0.15rem 0;
+  white-space: nowrap;
 }
 
 .q-bar-mini {
-  height: 3px;
+  height: 4px;
   background: #1e293b;
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
 }
 
 .q-bar-fill {
   height: 100%;
-  background: var(--accent-sky);
-  transition: width 0.5s ease;
+  background: linear-gradient(90deg, #38bdf8, #00f5d4);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ==========================================================================
