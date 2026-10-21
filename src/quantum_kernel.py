@@ -1,8 +1,8 @@
 """
 Quantum Support Vector Machine (QSVM) using Qiskit quantum kernels.
 
-Implements quantum kernel computation via ZZFeatureMap and
-FidelityQuantumKernel for rare-disease classification.
+Implements quantum kernel computation via ZZFeatureMap and quantum state
+fidelity overlap for multimodal rare-disease classification.
 
 Author: Mallikarjun.R
 Team: Q-Glitch (VTU-QFF-HC-0190)
@@ -14,17 +14,22 @@ from typing import Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-# Qiskit imports with graceful fallback
+# Qiskit imports with native statevector fidelity and fallback
 try:
     from qiskit import QuantumCircuit
-    from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
-    from qiskit_machine_learning.kernels import FidelityQuantumKernel
-    from qiskit.primitives import StatevectorSampler
-    from qiskit_aer import AerSimulator
+    from qiskit.circuit.library import ZZFeatureMap
+    from qiskit.quantum_info import Statevector
     HAS_QISKIT = True
 except ImportError:
     HAS_QISKIT = False
     logger.warning("Qiskit not installed. Quantum kernel will use classical SVM fallback.")
+
+# Optional Qiskit ML if available
+try:
+    from qiskit_machine_learning.kernels import FidelityQuantumKernel
+    HAS_QISKIT_ML = True
+except ImportError:
+    HAS_QISKIT_ML = False
 
 from sklearn.svm import SVC
 from sklearn.metrics import (
@@ -42,13 +47,11 @@ class QuantumKernelClassifier:
     The quantum kernel computes:
         K(x_i, x_j) = |<φ(x_i)|φ(x_j)>|²
 
-    where φ is a quantum feature map that encodes classical data
-    into quantum state space via parameterized circuits.
+    where φ is a quantum feature map (ZZFeatureMap) that encodes classical data
+    into quantum Hilbert state space via parameterized entanglement gates.
 
-    This approach exploits the exponential dimensionality of Hilbert
-    space to find complex decision boundaries that classical kernels
-    may miss, particularly useful for small, high-dimensional
-    rare-disease datasets.
+    This approach exploits exponential Hilbert space to find non-linear decision
+    boundaries that classical kernels struggle with on small, high-dimensional cohorts.
     """
 
     def __init__(
@@ -62,9 +65,10 @@ class QuantumKernelClassifier:
         self.entanglement = entanglement or CONFIG.quantum.entanglement
         self.use_quantum = HAS_QISKIT
         self.feature_map = None
-        self.kernel = None
         self.classifier = None
         self.is_trained = False
+        self._X_train = None
+        self._train_statevectors = None
 
         if self.use_quantum:
             self._build_quantum_kernel()
@@ -72,23 +76,17 @@ class QuantumKernelClassifier:
             self._build_classical_fallback()
 
     def _build_quantum_kernel(self):
-        """Construct the quantum feature map and kernel."""
+        """Construct the quantum feature map."""
         logger.info(
             f"Building quantum kernel: {self.n_qubits} qubits, "
             f"{self.feature_map_reps} reps, {self.entanglement} entanglement"
         )
 
-        # ZZFeatureMap creates entangling feature encoding
-        # It encodes data as: U_Φ(x) = exp(i Σ φ_k(x) Z_k Z_l)
+        # ZZFeatureMap parameterized circuit: U_Φ(x) = exp(i Σ φ_k(x) Z_k Z_l)
         self.feature_map = ZZFeatureMap(
             feature_dimension=self.n_qubits,
             reps=self.feature_map_reps,
             entanglement=self.entanglement
-        )
-
-        # Build the fidelity-based quantum kernel
-        self.kernel = FidelityQuantumKernel(
-            feature_map=self.feature_map
         )
 
         # SVC with precomputed quantum kernel matrix
@@ -116,39 +114,56 @@ class QuantumKernelClassifier:
             return self.feature_map.draw(output="text").__str__()
         return None
 
+    def _compute_statevectors(self, X: np.ndarray) -> np.ndarray:
+        """
+        Map each data vector x into its corresponding quantum statevector
+        |φ(x)> using the parameterized ZZFeatureMap.
+        """
+        n_samples = X.shape[0]
+        dim = 2 ** self.n_qubits
+        vectors = np.empty((n_samples, dim), dtype=np.complex128)
+
+        for i in range(n_samples):
+            bound_circuit = self.feature_map.assign_parameters(X[i])
+            sv = Statevector.from_instruction(bound_circuit)
+            vectors[i] = sv.data
+
+        return vectors
+
     def compute_kernel_matrix(
-        self, X_train: np.ndarray, X_test: Optional[np.ndarray] = None
+        self, X1: np.ndarray, X2: Optional[np.ndarray] = None
     ) -> np.ndarray:
         """
-        Compute the quantum kernel matrix.
-
-        For training: K_train[i,j] = |<φ(x_i)|φ(x_j)>|²
-        For testing:  K_test[i,j]  = |<φ(x_test_i)|φ(x_train_j)>|²
+        Compute the quantum fidelity kernel matrix:
+            K[i, j] = |<φ(x1_i)|φ(x2_j)>|²
         """
         if not self.use_quantum:
             raise RuntimeError("Quantum kernel not available without Qiskit")
 
-        if X_test is None:
-            logger.info(f"Computing training kernel matrix ({X_train.shape[0]}x{X_train.shape[0]})")
-            return self.kernel.evaluate(X_train)
+        if X2 is None:
+            # Training kernel matrix: K(X1, X1)
+            logger.info(f"Computing quantum training kernel matrix ({X1.shape[0]}x{X1.shape[0]})...")
+            V1 = self._compute_statevectors(X1)
+            self._train_statevectors = V1
+            # Inner products: <ψ_i | ψ_j> = V1[i]*.data @ V1[j].data
+            gram = np.dot(V1, V1.conj().T)
+            K = np.abs(gram) ** 2
+            return K
         else:
-            logger.info(
-                f"Computing test kernel matrix "
-                f"({X_test.shape[0]}x{X_train.shape[0]})"
-            )
-            return self.kernel.evaluate(X_test, X_train)
+            # Test kernel matrix: K(X1, X2) -> rows correspond to X1 (test), cols to X2 (train)
+            logger.info(f"Computing quantum test kernel matrix ({X1.shape[0]}x{X2.shape[0]})...")
+            V1 = self._compute_statevectors(X1)
+            V2 = self._train_statevectors if (self._train_statevectors is not None and len(self._train_statevectors) == len(X2)) else self._compute_statevectors(X2)
+            gram = np.dot(V1, V2.conj().T)
+            K = np.abs(gram) ** 2
+            return K
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray):
-        """
-        Train the quantum kernel classifier.
-
-        For quantum mode: computes kernel matrix, then fits SVC.
-        For classical fallback: directly fits SVC with RBF kernel.
-        """
+        """Train the quantum kernel classifier."""
         logger.info(f"Training QSVM on {X_train.shape[0]} samples...")
 
         if self.use_quantum:
-            self._X_train = X_train  # Store for test kernel computation
+            self._X_train = X_train
             K_train = self.compute_kernel_matrix(X_train)
             self.classifier.fit(K_train, y_train)
         else:
@@ -157,12 +172,16 @@ class QuantumKernelClassifier:
         self.is_trained = True
         logger.info("QSVM training complete")
 
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray):
+        """Scikit-learn style fit method."""
+        return self.train(X_train, y_train)
+
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         """Generate predictions for test data."""
         assert self.is_trained, "Model must be trained before prediction"
 
         if self.use_quantum:
-            K_test = self.compute_kernel_matrix(self._X_train, X_test)
+            K_test = self.compute_kernel_matrix(X_test, self._X_train)
             return self.classifier.predict(K_test)
         return self.classifier.predict(X_test)
 
@@ -171,26 +190,21 @@ class QuantumKernelClassifier:
         assert self.is_trained, "Model must be trained before prediction"
 
         if self.use_quantum:
-            K_test = self.compute_kernel_matrix(self._X_train, X_test)
+            K_test = self.compute_kernel_matrix(X_test, self._X_train)
             return self.classifier.predict_proba(K_test)
         return self.classifier.predict_proba(X_test)
 
     def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
-        """
-        Evaluate the quantum kernel classifier.
-
-        Returns:
-            Dictionary of evaluation metrics.
-        """
+        """Evaluate the quantum kernel classifier."""
         y_pred = self.predict(X_test)
         y_proba = self.predict_proba(X_test)[:, 1]
 
         metrics = {
-            "accuracy": accuracy_score(y_test, y_pred),
-            "f1_score": f1_score(y_test, y_pred, zero_division=0),
-            "precision": precision_score(y_test, y_pred, zero_division=0),
-            "recall": recall_score(y_test, y_pred, zero_division=0),
-            "roc_auc": roc_auc_score(y_test, y_proba),
+            "accuracy": float(accuracy_score(y_test, y_pred)),
+            "f1_score": float(f1_score(y_test, y_pred, zero_division=0)),
+            "precision": float(precision_score(y_test, y_pred, zero_division=0)),
+            "recall": float(recall_score(y_test, y_pred, zero_division=0)),
+            "roc_auc": float(roc_auc_score(y_test, y_proba)),
         }
 
         label = "Quantum Kernel QSVC" if self.use_quantum else "Classical SVM (fallback)"

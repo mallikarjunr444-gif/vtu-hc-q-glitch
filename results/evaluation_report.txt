@@ -1,0 +1,18 @@
+============================================================
+  Q-GLITCH MODEL EVALUATION REPORT
+  Team: Q-Glitch | ID: VTU-QFF-HC-0190
+============================================================
+
+PERFORMANCE COMPARISON
+----------------------------------------
+                       Accuracy  F1 Score  Precision    Recall   Roc Auc
+Model                                                                   
+SVM (RBF)                  1.00  1.000000   1.000000  1.000000  1.000000
+Random Forest              1.00  1.000000   1.000000  1.000000  1.000000
+Gradient Boosting          0.95  0.827586   0.857143  0.800000  0.956078
+Quantum Kernel (QSVM)      0.85  0.000000   0.000000  0.000000  0.584314
+VQC (Variational)          0.59  0.254545   0.175000  0.466667  0.546667
+
+Best model (by F1-score): SVM (RBF)
+
+============================================================

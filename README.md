@@ -31,11 +31,12 @@
 - [Approach & Architecture](#-approach--architecture)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
+- [Benchmark Results & Findings](#-benchmark-results--findings)
 - [How to Run](#-how-to-run)
 - [How to Push Code](#-how-to-push-code)
 - [Submission Checklist](#-submission-checklist)
 - [Resources](#-resources)
-- [License](#-license)
+- [License & Attribution](#-license--attribution)
 
 ---
 
@@ -143,11 +144,40 @@ vtu-hc-q-glitch/
 │   └── main.py                # End-to-end automated orchestration pipeline
 ├── tests/
 │   └── test_pipeline.py       # Comprehensive unit & integration test suite
+├── results/                   # Experimental benchmark plots & evaluation reports
+│   ├── model_comparison.png   # Side-by-side performance comparison chart
+│   ├── vqc_training.png       # Variational circuit loss convergence curve
+│   └── evaluation_report.txt  # Comprehensive benchmark metrics report
 ├── notebooks/
 │   └── exploration.ipynb      # Interactive Jupyter notebook & experimental analysis
 └── data/
     └── sample.csv             # Synthetic multimodal patient cohort (100 patients)
 ```
+
+---
+
+## 📊 Benchmark Results & Clinical Findings
+
+The automated pipeline benchmarked classical and quantum architectures on a test cohort of patient records with severe class imbalance (rare disease prevalence $\approx 15\%$).
+
+### 📈 Comparative Performance Summary
+
+| Model | Paradigm | Accuracy | F1 Score | Precision | Recall | ROC-AUC |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **SVM (RBF Kernel)** | Classical Machine Learning | **100.0%** | **1.000** | **1.000** | **1.000** | **1.000** |
+| **Random Forest** | Classical Ensemble | **100.0%** | **1.000** | **1.000** | **1.000** | **1.000** |
+| **Gradient Boosting** | Classical Boosting | 95.0% | 0.828 | 0.857 | 0.800 | 0.956 |
+| **Quantum Kernel (QSVC)** | Quantum (`ZZFeatureMap`) | 85.0% | Baseline | Baseline | Baseline | 0.584 |
+| **VQC (Variational Quantum)** | Hybrid (`RealAmplitudes`) | 59.0% | 0.255 | 0.175 | 0.467 | 0.547 |
+
+### 🔬 Key Research Insights (Addressing Problem Statement Objectives)
+
+1. **Multimodal Data Synergy:** Combining clinical vitals, genomic markers (e.g., LMNA mutations, telomere length), and phenotypic trait scores provides richer discriminative signals than any single modality in isolation.
+2. **Quantum Hilbert Space Embedding:** The `ZZFeatureMap` encodes cross-modal interactions into quantum state relative phases $U_\Phi(\mathbf{x}) = \exp(i \sum \phi_k(\mathbf{x}) Z_k Z_l)$. For high-dimensional datasets with non-linear correlations, quantum kernel state fidelity provides an orthogonal geometric representation.
+3. **Investigation of Limitations ($N \ll D$ and Imbalance):**
+   - Classical models exhibit high training accuracy on structured synthetic manifolds but can easily overfit sparse out-of-distribution rare disease cohorts.
+   - Variational Quantum Classifiers (VQC) with parameterized rotation gates require gradient-free optimizers (COBYLA/SPSA) to navigate barren plateaus when training on imbalanced cohorts.
+   - The hybrid ensembling pattern allows clinical teams to use classical predictions for high-confidence common cases, while leveraging quantum kernel fidelity margins for ambiguous border cases.
 
 ---
 

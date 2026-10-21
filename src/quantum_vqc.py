@@ -1,8 +1,8 @@
 """
 Variational Quantum Classifier (VQC) for rare-disease prediction.
 
-Implements a parameterized quantum circuit with trainable
-rotation gates optimized via classical-quantum hybrid loop.
+Implements a parameterized quantum circuit (ZZFeatureMap + RealAmplitudes)
+with trainable rotation gates optimized via classical-quantum hybrid loop (COBYLA).
 
 Author: Mallanagouda M
 Team: Q-Glitch (VTU-QFF-HC-0190)
@@ -10,22 +10,20 @@ Team: Q-Glitch (VTU-QFF-HC-0190)
 
 import numpy as np
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 logger = logging.getLogger(__name__)
 
-# Qiskit imports with graceful fallback
+# Qiskit imports with native statevector and fallback
 try:
     from qiskit import QuantumCircuit
-    from qiskit.circuit.library import ZZFeatureMap, RealAmplitudes, EfficientSU2
-    from qiskit_algorithms.optimizers import COBYLA, SPSA
-    from qiskit_machine_learning.algorithms import VQC
-    from qiskit.primitives import StatevectorSampler
-    from qiskit_aer import AerSimulator
+    from qiskit.circuit.library import ZZFeatureMap, RealAmplitudes
+    from qiskit.quantum_info import Statevector, SparsePauliOp
+    from scipy.optimize import minimize
     HAS_QISKIT = True
 except ImportError:
     HAS_QISKIT = False
-    logger.warning("Qiskit not installed. VQC will use classical MLP fallback.")
+    logger.warning("Qiskit or Scipy not installed. VQC will use classical MLP fallback.")
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import (
@@ -41,15 +39,13 @@ class VariationalQuantumClassifier:
     Variational Quantum Classifier (VQC) implementation.
 
     Architecture:
-        1. Feature Map: ZZFeatureMap encodes classical data into
-           quantum states via parameterized rotations and entanglement.
-        2. Ansatz: RealAmplitudes variational circuit with trainable
-           parameters optimized during training.
-        3. Measurement: Pauli-Z expectation values decoded into
-           class predictions.
-
-    The VQC learns a decision boundary in quantum Hilbert space
-    by optimizing variational parameters to minimize classification loss.
+        1. Feature Map: ZZFeatureMap encodes classical clinical/genomic features
+           into quantum state space via non-linear entanglement.
+        2. Ansatz: RealAmplitudes parameterized circuit with trainable rotation
+           angles (Ry gates and CX entangling gates).
+        3. Measurement: Pauli-Z expectation value on qubit 0 decoded into
+           rare-disease risk probability: p = (1 + <Z_0>) / 2.
+        4. Optimization: COBYLA classical optimizer minimizing binary cross-entropy.
     """
 
     def __init__(
@@ -66,90 +62,56 @@ class VariationalQuantumClassifier:
         self.ansatz_reps = ansatz_reps or CONFIG.quantum.ansatz_reps
         self.entanglement = entanglement or CONFIG.quantum.entanglement
         self.optimizer_name = optimizer_name or CONFIG.quantum.optimizer_name
-        self.max_iter = max_iter or CONFIG.quantum.max_iter
+        self.max_iter = max_iter or min(CONFIG.quantum.max_iter, 50)
         self.use_quantum = HAS_QISKIT
 
         self.feature_map = None
         self.ansatz = None
-        self.optimizer = None
-        self.classifier = None
-        self.training_history = []
+        self.full_circuit = None
+        self.obs_op = None
+        self.weights = None
+        self.training_history: List[float] = []
         self.is_trained = False
+        self.fallback_model = None
 
         if self.use_quantum:
             self._build_vqc()
         else:
             self._build_classical_fallback()
 
-    def _build_feature_map(self) -> QuantumCircuit:
-        """Build the quantum feature map for data encoding."""
-        self.feature_map = ZZFeatureMap(
-            feature_dimension=self.n_qubits,
-            reps=self.feature_map_reps,
-            entanglement=self.entanglement
-        )
-        return self.feature_map
-
-    def _build_ansatz(self) -> QuantumCircuit:
-        """Build the variational ansatz with trainable parameters."""
-        self.ansatz = RealAmplitudes(
-            num_qubits=self.n_qubits,
-            reps=self.ansatz_reps,
-            entanglement=self.entanglement
-        )
-        return self.ansatz
-
-    def _get_optimizer(self):
-        """Select the classical optimizer for parameter updates."""
-        optimizers = {
-            "cobyla": COBYLA(maxiter=self.max_iter),
-            "spsa": SPSA(maxiter=self.max_iter),
-        }
-        self.optimizer = optimizers.get(
-            self.optimizer_name.lower(),
-            COBYLA(maxiter=self.max_iter)
-        )
-        return self.optimizer
-
     def _build_vqc(self):
-        """Assemble the full VQC pipeline."""
+        """Assemble the parameterized quantum circuit and measurement observable."""
         logger.info(
             f"Building VQC: {self.n_qubits} qubits, "
             f"ansatz_reps={self.ansatz_reps}, "
             f"optimizer={self.optimizer_name}"
         )
 
-        feature_map = self._build_feature_map()
-        ansatz = self._build_ansatz()
-        optimizer = self._get_optimizer()
-        sampler = StatevectorSampler()
-
-        # Callback to track training progress
-        def callback(weights, obj_value):
-            self.training_history.append(float(obj_value))
-            if len(self.training_history) % 20 == 0:
-                logger.info(
-                    f"  VQC iteration {len(self.training_history)}: "
-                    f"loss={obj_value:.4f}"
-                )
-
-        self.classifier = VQC(
-            feature_map=feature_map,
-            ansatz=ansatz,
-            optimizer=optimizer,
-            sampler=sampler,
-            callback=callback,
+        self.feature_map = ZZFeatureMap(
+            feature_dimension=self.n_qubits,
+            reps=self.feature_map_reps,
+            entanglement=self.entanglement
         )
 
-        total_params = ansatz.num_parameters
-        circuit_depth = feature_map.depth() + ansatz.depth()
+        self.ansatz = RealAmplitudes(
+            num_qubits=self.n_qubits,
+            reps=self.ansatz_reps,
+            entanglement=self.entanglement
+        )
+
+        self.full_circuit = self.feature_map.compose(self.ansatz)
+        # Pauli-Z observable on qubit 0: 'ZII...I'
+        self.obs_op = SparsePauliOp(["Z" + "I" * (self.n_qubits - 1)])
+
+        total_params = self.ansatz.num_parameters
+        circuit_depth = self.full_circuit.depth()
         logger.info(f"VQC trainable parameters: {total_params}")
         logger.info(f"Total circuit depth: {circuit_depth}")
 
     def _build_classical_fallback(self):
         """Classical MLP fallback when Qiskit is unavailable."""
         logger.warning("Using classical MLP as VQC fallback")
-        self.classifier = MLPClassifier(
+        self.fallback_model = MLPClassifier(
             hidden_layer_sizes=(64, 32, 16),
             activation="relu",
             max_iter=500,
@@ -158,59 +120,97 @@ class VariationalQuantumClassifier:
 
     def get_circuit_diagram(self) -> Optional[str]:
         """Return text diagram of the full VQC circuit."""
-        if self.feature_map is not None and self.ansatz is not None:
-            full_circuit = self.feature_map.compose(self.ansatz)
-            return full_circuit.draw(output="text").__str__()
+        if self.full_circuit is not None:
+            return self.full_circuit.draw(output="text").__str__()
         return None
+
+    def _predict_prob_single(self, x: np.ndarray, theta: np.ndarray) -> float:
+        """Compute predicted probability for a single sample x given variational weights theta."""
+        param_dict = dict(zip(self.feature_map.parameters, x))
+        param_dict.update(dict(zip(self.ansatz.parameters, theta)))
+        bound = self.full_circuit.assign_parameters(param_dict)
+        sv = Statevector.from_instruction(bound)
+        exp_val = float(sv.expectation_value(self.obs_op).real)
+        # Map expectation in [-1, 1] to probability in [0, 1]
+        prob = 0.5 * (1.0 + exp_val)
+        return float(np.clip(prob, 1e-6, 1.0 - 1e-6))
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray):
         """
-        Train the VQC on quantum-encoded training data.
-
-        The optimizer iteratively adjusts ansatz parameters to
-        minimize the classification objective function.
+        Train the VQC on quantum-encoded training data using classical optimization.
         """
         logger.info(f"Training VQC on {X_train.shape[0]} samples...")
         self.training_history = []
-        self.classifier.fit(X_train, y_train)
-        self.is_trained = True
-        logger.info(
-            f"VQC training complete after {len(self.training_history)} iterations"
+
+        if not self.use_quantum:
+            self.fallback_model.fit(X_train, y_train)
+            self.is_trained = True
+            logger.info("VQC (classical MLP fallback) training complete")
+            return
+
+        # Subsample for fast variational training if cohort is large
+        train_size = min(len(X_train), 50)
+        indices = np.random.RandomState(42).choice(len(X_train), train_size, replace=False)
+        X_sub = X_train[indices]
+        y_sub = y_train[indices]
+
+        n_params = self.ansatz.num_parameters
+        init_weights = np.random.RandomState(42).normal(0, 0.1, size=n_params)
+
+        def cost_function(theta):
+            probs = np.array([self._predict_prob_single(x, theta) for x in X_sub])
+            # Binary Cross Entropy loss
+            bce = -np.mean(y_sub * np.log(probs) + (1 - y_sub) * np.log(1 - probs))
+            self.training_history.append(float(bce))
+            return float(bce)
+
+        res = minimize(
+            cost_function,
+            init_weights,
+            method="COBYLA",
+            options={"maxiter": self.max_iter}
         )
 
-    def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Generate class predictions."""
-        assert self.is_trained, "Model must be trained before prediction"
-        return self.classifier.predict(X_test)
+        self.weights = res.x
+        self.is_trained = True
+        logger.info(
+            f"VQC training complete after {len(self.training_history)} evaluations | final loss: {res.fun:.4f}"
+        )
+
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray):
+        """Scikit-learn style fit method."""
+        return self.train(X_train, y_train)
 
     def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
-        """Generate probability predictions."""
+        """Generate class probability predictions."""
         assert self.is_trained, "Model must be trained before prediction"
-        if hasattr(self.classifier, "predict_proba"):
-            return self.classifier.predict_proba(X_test)
-        # VQC score method as fallback
-        scores = self.classifier.score(X_test, np.zeros(len(X_test)))
-        return np.column_stack([1 - scores, scores])
+
+        if not self.use_quantum:
+            return self.fallback_model.predict_proba(X_test)
+
+        probs_pos = np.array([self._predict_prob_single(x, self.weights) for x in X_test])
+        probs_neg = 1.0 - probs_pos
+        return np.column_stack([probs_neg, probs_pos])
+
+    def predict(self, X_test: np.ndarray) -> np.ndarray:
+        """Generate binary class predictions (threshold 0.5)."""
+        proba = self.predict_proba(X_test)[:, 1]
+        return (proba >= 0.5).astype(int)
 
     def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
         """Evaluate VQC performance and return metrics."""
         y_pred = self.predict(X_test)
+        y_proba = self.predict_proba(X_test)[:, 1]
 
         metrics = {
-            "accuracy": accuracy_score(y_test, y_pred),
-            "f1_score": f1_score(y_test, y_pred, zero_division=0),
-            "precision": precision_score(y_test, y_pred, zero_division=0),
-            "recall": recall_score(y_test, y_pred, zero_division=0),
+            "accuracy": float(accuracy_score(y_test, y_pred)),
+            "f1_score": float(f1_score(y_test, y_pred, zero_division=0)),
+            "precision": float(precision_score(y_test, y_pred, zero_division=0)),
+            "recall": float(recall_score(y_test, y_pred, zero_division=0)),
+            "roc_auc": float(roc_auc_score(y_test, y_proba)),
         }
 
-        # ROC-AUC if probabilities are available
-        try:
-            y_proba = self.predict_proba(X_test)[:, 1]
-            metrics["roc_auc"] = roc_auc_score(y_test, y_proba)
-        except Exception:
-            metrics["roc_auc"] = 0.0
-
-        label = "VQC (Quantum)" if self.use_quantum else "MLP (fallback)"
+        label = "VQC (Quantum RealAmplitudes)" if self.use_quantum else "MLP (fallback)"
         logger.info(
             f"  {label}: Acc={metrics['accuracy']:.4f}, "
             f"F1={metrics['f1_score']:.4f}, "
@@ -218,6 +218,6 @@ class VariationalQuantumClassifier:
         )
         return metrics
 
-    def get_training_history(self):
+    def get_training_history(self) -> List[float]:
         """Return the loss history from training."""
         return self.training_history
