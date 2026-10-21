@@ -66,7 +66,10 @@ class DataPreprocessor:
 
         # Step 4: PCA for quantum-compatible dimensionality
         X_selected = self.selector.transform(X_scaled)
-        self.pca.fit(X_selected)
+        X_pca = self.pca.fit_transform(X_selected)
+
+        # Step 5: Fit normalizer to [0, pi] for quantum rotation gates
+        self.normalizer.fit(X_pca)
 
         self._fitted = True
         variance_explained = self.pca.explained_variance_ratio_.sum()
@@ -98,8 +101,8 @@ class DataPreprocessor:
         X_selected = self.selector.transform(X_scaled)
         X_pca = self.pca.transform(X_selected)
 
-        # Normalize to [0, pi] for quantum rotation gates
-        X_quantum = self.normalizer.fit_transform(X_pca)
+        # Transform to [0, pi] for quantum rotation gates
+        X_quantum = np.clip(self.normalizer.transform(X_pca), 0.0, np.pi)
         return X_quantum
 
     def fit_transform(
