@@ -13,6 +13,7 @@ import sys
 import numpy as np
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -87,8 +88,8 @@ class PatientProfile(BaseModel):
     skeletal_abnormality: float = Field(0.2, ge=0.0, le=1.0, description="Skeletal dysplasia / bone deformity score")
 
 
-@app.get("/")
-def root():
+@app.get("/api/meta")
+def root_meta():
     """Root metadata endpoint."""
     return {
         "system": "Q-Glitch Clinical AI Engine",
@@ -208,6 +209,12 @@ def predict_patient(patient: PatientProfile):
             "quantum_state_rotation_angles": [round(float(a), 4) for a in X_q[0]],
         }
     }
+
+
+# Mount modern interactive web platform static files at root
+web_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web")
+if os.path.exists(web_dir):
+    app.mount("/", StaticFiles(directory=web_dir, html=True), name="web")
 
 
 if __name__ == "__main__":

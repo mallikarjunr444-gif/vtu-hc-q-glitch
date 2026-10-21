@@ -793,7 +793,8 @@ q_5: ┤ H ├┤5                             ├┤ Ry(θ_5) ────├�
   </footer>
 
   <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="three.min.js"></script>
+  <script>if(typeof THREE === 'undefined') document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\\/script>')</script>
   <script src="quantum_3d.js"></script>
   <script src="app.js"></script>
 </body>
