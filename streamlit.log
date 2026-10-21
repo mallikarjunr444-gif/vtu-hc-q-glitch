@@ -15,3 +15,4 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
   $ pip install watchdog
             
 23:05:41 | src.model_store           | INFO    | Loaded trained model bundle from /Users/malikarjunr/vtu-hc-q-glitch/models/qglitch_bundle.pkl
+23:11:03 | src.quantum_kernel        | INFO    | Computing quantum test kernel matrix (1x350)...
