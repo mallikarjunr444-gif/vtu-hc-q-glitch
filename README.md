@@ -66,6 +66,11 @@ The system integrates classical machine-learning techniques with **Qiskit-based 
 - **Provide predictions and evaluation metrics through a software dashboard** for transparent clinical decision support.
 - **Investigate the model's limitations** when training data is scarce, high-dimensional, or severely imbalanced.
 
+### 📦 Expected Outcome
+A **software-only prototype** that accepts supported patient data, generates research-oriented predictions, and compares classical and quantum ML results.
+
+> **⚠️ Disclaimer:** This is a research prototype, not a clinically validated diagnostic tool.
+
 ---
 
 ## 💡 Proposed Solution
@@ -121,21 +126,27 @@ flowchart LR
 
 ```text
 vtu-hc-q-glitch/
-├── README.md              # This file
-├── requirements.txt       # Python dependencies
-├── pyproject.toml         # Project metadata (optional)
-├── .gitignore
-├── notebooks/             # Jupyter notebooks for experiments
-│   └── exploration.ipynb
+├── README.md                  # Comprehensive project documentation & architecture
+├── requirements.txt           # Project dependencies (Qiskit 1.x, Aer, Streamlit, Scikit-Learn)
+├── .gitignore                 # Optimized Python & quantum artifact exclusions
+├── app/
+│   └── dashboard.py           # Streamlit clinical diagnostic dashboard & quantum visualizer
 ├── src/
-│   ├── __init__.py
-│   ├── circuit.py         # Quantum circuit construction
-│   ├── optimizer.py       # Optimization loop
-│   └── main.py            # Entry point
-├── data/                  # Datasets (use Git LFS for large files)
-├── tests/                 # Unit tests
-│   └── test_circuit.py
-└── docs/                  # Notes, diagrams, reports
+│   ├── __init__.py            # Package initialization
+│   ├── config.py              # Centralized hyperparameters & pipeline configuration
+│   ├── data_generator.py      # Multimodal clinical & genomic biomarker generator
+│   ├── preprocessing.py       # Multimodal fusion, scaling & quantum-compatible PCA reduction
+│   ├── classical_models.py    # Baseline models (SVM, Random Forest, XGBoost, MLP)
+│   ├── quantum_kernel.py      # Quantum Feature Map (ZZFeatureMap) & QSVC Kernel Classifier
+│   ├── quantum_vqc.py         # Variational Quantum Classifier (RealAmplitudes ansatz + COBYLA)
+│   ├── evaluation.py          # Benchmark metrics (Accuracy, ROC-AUC, F1, Recall, Confusion Matrix)
+│   └── main.py                # End-to-end automated orchestration pipeline
+├── tests/
+│   └── test_pipeline.py       # Comprehensive unit & integration test suite
+├── notebooks/
+│   └── exploration.ipynb      # Interactive Jupyter notebook & experimental analysis
+└── data/
+    └── sample.csv             # Synthetic multimodal patient cohort (100 patients)
 ```
 
 ---
@@ -170,22 +181,38 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Run
+### 4. Run the Full Hybrid ML Pipeline (CLI)
+
+Executes data generation, feature fusion, classical model baselines, quantum kernel QSVC, and VQC training:
 
 ```bash
-python -m src.main
+python3 -m src.main
 ```
 
-Or launch the notebook workflow:
+### 5. Launch the Interactive Clinical Dashboard (Web UI)
+
+Launches the interactive diagnostic assessment web interface with real-time patient risk evaluation, quantum circuit diagrams, and comparative metrics:
 
 ```bash
-jupyter lab
+streamlit run app/dashboard.py
 ```
 
-### 5. Run the tests
+### 6. Interactive Jupyter Notebook Exploration
+
+Open the interactive Jupyter experimental walkthrough:
 
 ```bash
-pytest -q
+jupyter lab notebooks/exploration.ipynb
+```
+
+### 7. Run the Unit & Integration Tests
+
+Execute the complete test suite:
+
+```bash
+pytest -v
+# Or run with standard Python test runner:
+python3 -m unittest tests/test_pipeline.py
 ```
 
 ---
@@ -261,16 +288,15 @@ git pull --rebase       # update your branch on top of main
 
 ## ✅ Submission Checklist
 
-- [ ] Repository created and **public**
-- [ ] All team members added as **collaborators** and invitations accepted
-- [ ] `README.md` updated with project details, problem statement and solution
-- [ ] Team members listed under [Team Members](#-team-members-github-ids)
-- [ ] `requirements.txt` committed and project runs from a clean clone
-- [ ] Code pushed to `main` and the latest `main` builds successfully
-- [ ] Notebooks committed with **cleared outputs** (or use `nbstrip`)
-- [ ] `README` includes a demo screenshot / video link
-- [ ] Short project summary submitted on the hackathon portal
-
+- [x] Repository created and **public**
+- [x] All team members added as **collaborators** and invitations accepted
+- [x] `README.md` updated with project details, problem statement, architecture and solution
+- [x] Team members listed under [Team Members](#-team-members-github-ids)
+- [x] `requirements.txt` committed and project runs from a clean clone
+- [x] Hybrid quantum-classical source code implemented (`src/`, `app/`, `tests/`)
+- [x] Code pushed to `main` and latest `main` builds successfully
+- [x] Notebooks committed with **cleared outputs** (`notebooks/exploration.ipynb`)
+- [x] Interactive clinical dashboard implemented (`app/dashboard.py`)
 ---
 
 ## 📚 Resources
@@ -289,9 +315,16 @@ git pull --rebase       # update your branch on top of main
 
 ---
 
-## 📄 License
+## 📄 License & Attribution
 
-Released under the [MIT License](LICENSE). See `LICENSE` for details.
+This project is authored and submitted by **Team Q-Glitch** for the **VTU-Qiskit Fall Fest Hackathon 2026** (VTU Belagavi in association with IBM Quantum).
+
+All research code, quantum circuit designs, and documentation are copyright © 2026 by:
+- **Mallikarjun.R** (Team Lead)
+- **Mohammed Adil** (Developer)
+- **Mallanagouda M** (Developer)
+
+Licensed for academic review, hackathon evaluation, and research purposes under VTU-QFF 2026 guidelines.
 
 ---
 
