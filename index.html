@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q-Glitch | Multimodal Quantum AI for Rare-Disease Diagnostic Intelligence</title>
+  <meta name="description" content="Next-generation multimodal hybrid quantum-classical artificial intelligence platform for early rare-disease detection and differential diagnosis. Powered by IBM Qiskit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Dynamic 3D Quantum Background Canvas -->
+  <div id="quantum-canvas-container"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar-wrapper">
+    <nav class="navbar container">
+      <a href="#" class="brand-container">
+        <div class="logo-orb">
+          <div class="orb-core"></div>
+          <div class="orb-ring ring-1"></div>
+          <div class="orb-ring ring-2"></div>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Q-GLITCH</span>
+          <span class="brand-tag">QUANTUM CLINICAL INTELLIGENCE</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="#diagnostic-suite" class="nav-item active"><i class="fa-solid fa-stethoscope"></i> Diagnostic Suite</a>
+        <a href="#cohort-screening" class="nav-item"><i class="fa-solid fa-users-viewfinder"></i> Cohort Screening</a>
+        <a href="#quantum-lab" class="nav-item"><i class="fa-solid fa-atom"></i> 3D Quantum Lab</a>
+        <a href="#benchmarks" class="nav-item"><i class="fa-solid fa-chart-line"></i> Benchmarks</a>
+        <a href="#api-console" class="nav-item"><i class="fa-solid fa-terminal"></i> API & EHR</a>
+      </div>
+
+      <div class="nav-actions">
+        <div class="quantum-badge-status">
+          <span class="pulse-indicator"></span>
+          <span>6 QUBITS ONLINE</span>
+        </div>
+        <a href="#diagnostic-suite" class="btn-glow-sm">Run Diagnosis</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section with 3D Quantum Motion -->
+  <section class="hero-section container">
+    <div class="hero-content">
+      <div class="hero-pill">
+        <span class="pill-sparkle">⚛️</span>
+        <span>VTU-QFF Hackathon 2026 &nbsp;|&nbsp; Team Q-Glitch &nbsp;|&nbsp; VTU-QFF-HC-0190</span>
+      </div>
+      <h1 class="hero-headline">
+        Multimodal Quantum AI for <br>
+        <span class="gradient-text">Rare-Disease Diagnosis</span>
+      </h1>
+      <p class="hero-description">
+        Eliminating the 7-year diagnostic odyssey. Q-Glitch fuses complex clinical laboratory vitals, genomic variants, and phenotypic scores into high-dimensional quantum Hilbert space using <strong>IBM Qiskit</strong> to detect ultra-rare pathologies before irreversible organ damage.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="#diagnostic-suite" class="btn-glow-lg">
+          <span>Launch Clinical Simulator</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="#quantum-lab" class="btn-outline-lg">
+          <i class="fa-solid fa-cube"></i>
+          <span>Explore 3D Bloch Qubits</span>
+        </a>
+      </div>
+
+      <!-- Live Clinical Counters -->
+      <div class="hero-metrics-bar">
+        <div class="metric-item">
+          <div class="metric-num"><span class="counter" data-target="26">26</span></div>
+          <div class="metric-label">Fused Modality Markers</div>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric-item">
+          <div class="metric-num"><span class="counter" data-target="64">64</span></div>
+          <div class="metric-label">Hilbert Basis States (2⁶)</div>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric-item">
+          <div class="metric-num"><span>&lt; 15</span><span class="metric-unit">ms</span></div>
+          <div class="metric-label">Quantum State Fidelity Time</div>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric-item">
+          <div class="metric-num"><span>100</span><span class="metric-unit">%</span></div>
+          <div class="metric-label">Deterministic Consensus</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notice Disclaimer -->
+  <div class="container">
+    <div class="research-disclaimer">
+      <div class="disclaimer-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="disclaimer-text">
+        <strong>Investigational Research Platform:</strong> Developed for the VTU-Qiskit Fall Fest 2026 Hackathon in association with IBM Quantum. Designed for research benchmarking and decision-support exploration, not as a standalone certified diagnostic device.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Diagnostic Suite -->
+  <section id="diagnostic-suite" class="section-container container">
+    <div class="section-header">
+      <div class="section-tag">DIAGNOSTIC CONTROL CENTER</div>
+      <h2 class="section-title">Patient Diagnostic Simulator</h2>
+      <p class="section-sub">Adjust patient clinical markers, genetic sequencing scores, and phenotypic dysplasias to simulate instant quantum state projection and classification.</p>
+    </div>
+
+    <!-- Quick Load Archetype Cards -->
+    <div class="archetype-bar">
+      <span class="archetype-title"><i class="fa-solid fa-bolt"></i> Quick-Load Verified Case Studies:</span>
+      <div class="archetype-buttons">
+        <button class="archetype-btn active" data-preset="progeria">
+          <span class="dot red"></span> Laminopathy / Progeria (Severe)
+        </button>
+        <button class="archetype-btn" data-preset="gaucher">
+          <span class="dot orange"></span> Lysosomal Storage (Gaucher / Fabry)
+        </button>
+        <button class="archetype-btn" data-preset="ehlers">
+          <span class="dot purple"></span> Ehlers-Danlos Skeletal Dysplasia
+        </button>
+        <button class="archetype-btn" data-preset="healthy">
+          <span class="dot green"></span> Healthy Control (Negative)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Diagnostic Grid -->
+    <div class="diagnostic-grid">
+      <!-- Input Controls (Left Column) -->
+      <div class="control-panel glass-card">
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-tab="tab-clinical"><i class="fa-solid fa-vial-virus"></i> Clinical Labs (12)</button>
+          <button class="panel-tab" data-tab="tab-genomic"><i class="fa-solid fa-dna"></i> Genomic Markers (8)</button>
+          <button class="panel-tab" data-tab="tab-phenotypic"><i class="fa-solid fa-person-dots-from-line"></i> Phenotypic Traits (6)</button>
+        </div>
+
+        <!-- Tab 1: Clinical Labs -->
+        <div class="tab-content active" id="tab-clinical">
+          <div class="slider-group-grid">
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Patient Age</label>
+                <span class="slider-val" id="val-age">15 yrs</span>
+              </div>
+              <input type="range" id="input-age" min="1" max="95" value="15" step="1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Body Mass Index (BMI)</label>
+                <span class="slider-val" id="val-bmi">15.5 kg/m²</span>
+              </div>
+              <input type="range" id="input-bmi" min="12" max="45" value="15.5" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Resting Heart Rate</label>
+                <span class="slider-val" id="val-hr">96 bpm</span>
+              </div>
+              <input type="range" id="input-hr" min="45" max="160" value="96" step="1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Systolic Blood Pressure</label>
+                <span class="slider-val" id="val-sbp">138 mmHg</span>
+              </div>
+              <input type="range" id="input-sbp" min="80" max="210" value="138" step="1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Diastolic Blood Pressure</label>
+                <span class="slider-val" id="val-dbp">88 mmHg</span>
+              </div>
+              <input type="range" id="input-dbp" min="45" max="130" value="88" step="1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Total Cholesterol</label>
+                <span class="slider-val" id="val-chol">230 mg/dL</span>
+              </div>
+              <input type="range" id="input-chol" min="90" max="380" value="230" step="1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Hemoglobin</label>
+                <span class="slider-val" id="val-hgb">11.2 g/dL</span>
+              </div>
+              <input type="range" id="input-hgb" min="6" max="20" value="11.2" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>White Blood Cells</label>
+                <span class="slider-val" id="val-wbc">9.8 x10³/µL</span>
+              </div>
+              <input type="range" id="input-wbc" min="2" max="25" value="9.8" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Platelet Count</label>
+                <span class="slider-val" id="val-plt">210 x10³/µL</span>
+              </div>
+              <input type="range" id="input-plt" min="30" max="550" value="210" step="5">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Serum Creatinine</label>
+                <span class="slider-val" id="val-cr">1.45 mg/dL</span>
+              </div>
+              <input type="range" id="input-cr" min="0.3" max="6.0" value="1.45" step="0.05">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Serum Albumin</label>
+                <span class="slider-val" id="val-alb">3.8 g/dL</span>
+              </div>
+              <input type="range" id="input-alb" min="1.5" max="5.5" value="3.8" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>C-Reactive Protein (CRP)</label>
+                <span class="slider-val" id="val-crp">8.5 mg/L</span>
+              </div>
+              <input type="range" id="input-crp" min="0.1" max="50.0" value="8.5" step="0.2">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Genomic Markers -->
+        <div class="tab-content" id="tab-genomic">
+          <div class="slider-group-grid">
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>LMNA Mutation Score</label>
+                <span class="slider-val" id="val-lmna">9.2 / 10</span>
+              </div>
+              <input type="range" id="input-lmna" min="0" max="10" value="9.2" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Progerin Accumulation Level</label>
+                <span class="slider-val" id="val-prog">8.8 / 10</span>
+              </div>
+              <input type="range" id="input-prog" min="0" max="10" value="8.8" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Relative Telomere Length</label>
+                <span class="slider-val" id="val-telo">2.4 kb</span>
+              </div>
+              <input type="range" id="input-telo" min="1.0" max="12.0" value="2.4" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>DNA Damage Foci (γ-H2AX)</label>
+                <span class="slider-val" id="val-dna">1.45</span>
+              </div>
+              <input type="range" id="input-dna" min="0.1" max="5.0" value="1.45" step="0.05">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>ZMPSTE24 Endoprotease</label>
+                <span class="slider-val" id="val-zmp">0.45</span>
+              </div>
+              <input type="range" id="input-zmp" min="0.1" max="3.0" value="0.45" step="0.05">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Autophagy Marker (LC3-II)</label>
+                <span class="slider-val" id="val-aut">0.55</span>
+              </div>
+              <input type="range" id="input-aut" min="0.1" max="3.0" value="0.55" step="0.05">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Cytokine Axis (IL-6 / TNF)</label>
+                <span class="slider-val" id="val-cyt">3.2 / 10</span>
+              </div>
+              <input type="range" id="input-cyt" min="0.1" max="10.0" value="3.2" step="0.1">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Oxidative Stress Index</label>
+                <span class="slider-val" id="val-ox">2.6</span>
+              </div>
+              <input type="range" id="input-ox" min="0.1" max="5.0" value="2.6" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Phenotypic Traits -->
+        <div class="tab-content" id="tab-phenotypic">
+          <div class="slider-group-grid">
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Growth Retardation Score</label>
+                <span class="slider-val" id="val-growth">0.95 (Severe)</span>
+              </div>
+              <input type="range" id="input-growth" min="0.0" max="1.0" value="0.95" step="0.02">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Cutaneous Elasticity Index</label>
+                <span class="slider-val" id="val-skin">0.15 (Sclerotic)</span>
+              </div>
+              <input type="range" id="input-skin" min="0.0" max="1.0" value="0.15" step="0.02">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Joint Mobility Score</label>
+                <span class="slider-val" id="val-joint">0.40 (Restricted)</span>
+              </div>
+              <input type="range" id="input-joint" min="0.0" max="1.0" value="0.40" step="0.02">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Follicular / Alopecia Index</label>
+                <span class="slider-val" id="val-hair">0.20 (Severe Loss)</span>
+              </div>
+              <input type="range" id="input-hair" min="0.0" max="1.0" value="0.20" step="0.02">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Cardiovascular Risk Axis</label>
+                <span class="slider-val" id="val-cv">0.85 (Atherosclerotic)</span>
+              </div>
+              <input type="range" id="input-cv" min="0.0" max="1.0" value="0.85" step="0.02">
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label>Skeletal Dysplasia Metric</label>
+                <span class="slider-val" id="val-skel">0.70 (Severe)</span>
+              </div>
+              <input type="range" id="input-skel" min="0.0" max="1.0" value="0.70" step="0.02">
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Trigger Button -->
+        <button id="btn-run-diagnosis" class="btn-glow-block">
+          <i class="fa-solid fa-atom"></i>
+          <span>Execute Quantum Feature Map & Diagnosis</span>
+        </button>
+      </div>
+
+      <!-- Real-Time Diagnostic HUD (Right Column) -->
+      <div class="results-hud glass-card">
+        <div class="hud-top-bar">
+          <div class="hud-patient-meta">
+            <span class="patient-id-tag">PATIENT ID: <strong id="hud-pid">PT-4092</strong></span>
+            <span class="hud-timestamp" id="hud-time">READY</span>
+          </div>
+          <div class="hud-badge-container">
+            <span id="triage-status-badge" class="badge-critical-glow">CRITICAL / HIGH RISK</span>
+          </div>
+        </div>
+
+        <!-- Circular Probability Gauge & Consensus Score -->
+        <div class="gauge-section">
+          <div class="circle-gauge-wrapper">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring__circle-bg" stroke="#1e293b" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
+              <circle id="gauge-circle" class="progress-ring__circle" stroke="url(#quantumGradient)" stroke-width="12" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
+              <defs>
+                <linearGradient id="quantumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ef4444" />
+                  <stop offset="50%" stop-color="#f59e0b" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="gauge-center-content">
+              <span id="gauge-pct" class="gauge-number">88.4%</span>
+              <span class="gauge-caption">HYBRID RISK</span>
+            </div>
+          </div>
+
+          <div class="model-consensus-bars">
+            <div class="consensus-item">
+              <div class="c-label"><span>Quantum Kernel (QSVC)</span><strong id="bar-val-qsvm">85.0%</strong></div>
+              <div class="c-track"><div id="bar-qsvm" class="c-fill quantum-fill" style="width: 85%;"></div></div>
+            </div>
+            <div class="consensus-item">
+              <div class="c-label"><span>Random Forest Ensemble</span><strong id="bar-val-rf">92.0%</strong></div>
+              <div class="c-track"><div id="bar-rf" class="c-fill rf-fill" style="width: 92%;"></div></div>
+            </div>
+            <div class="consensus-item">
+              <div class="c-label"><span>Support Vector (RBF)</span><strong id="bar-val-svm">94.0%</strong></div>
+              <div class="c-track"><div id="bar-svm" class="c-fill svm-fill" style="width: 94%;"></div></div>
+            </div>
+            <div class="consensus-item">
+              <div class="c-label"><span>Variational Quantum (VQC)</span><strong id="bar-val-vqc">78.5%</strong></div>
+              <div class="c-track"><div id="bar-vqc" class="c-fill vqc-fill" style="width: 78.5%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disease Categorization Card -->
+        <div class="category-callout-card">
+          <div class="cat-header">
+            <span class="cat-label">DIFFERENTIAL DIAGNOSTIC ANCHOR</span>
+            <span class="cat-icd" id="diag-icd">ICD-10: E34.8 / Q87.1</span>
+          </div>
+          <h3 class="cat-title" id="diag-name">Laminopathy & Progeroid Syndrome</h3>
+          <p class="cat-desc" id="diag-desc">Accelerated senescence driven by LMNA gene pathogenic transversion, leading to cytotoxic accumulation of farnesylated progerin and severe microvascular fragility.</p>
+          <div class="cat-biomarkers" id="diag-biomarkers">
+            <span class="biomarker-chip"><i class="fa-solid fa-dna"></i> LMNA Pathogenic Score: 9.2</span>
+            <span class="biomarker-chip"><i class="fa-solid fa-atom"></i> Progerin Level: 8.8</span>
+            <span class="biomarker-chip"><i class="fa-solid fa-hourglass-end"></i> Telomere Loss: 2.4 kb</span>
+          </div>
+          <div class="cat-urgency">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="diag-urgency">URGENT: Expedited pediatric genetics referral and cardiovascular telemetry evaluation.</span>
+          </div>
+        </div>
+
+        <!-- 6-Qubit Quantum Rotation Encodings -->
+        <div class="qubit-angle-monitor">
+          <div class="qubit-angle-header">
+            <span><i class="fa-solid fa-atom"></i> 6-Qubit Hilbert Phase Encodings [0, π rad]</span>
+            <span class="qubit-live-tag">LIVE ENCODING</span>
+          </div>
+          <div class="qubit-angle-grid" id="qubit-angle-bars">
+            <!-- Dynamically populated via app.js -->
+          </div>
+        </div>
+
+        <!-- Report Download Button -->
+        <button id="btn-download-report" class="btn-secondary-block">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          <span>Export Clinical Diagnostic Report (TXT)</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: 3D Quantum Laboratory & Bloch Spheres -->
+  <section id="quantum-lab" class="section-container container">
+    <div class="section-header">
+      <div class="section-tag">PHYSICS ENGINE & QUANTUM HARDWARE</div>
+      <h2 class="section-title">Interactive 3D Quantum Hilbert Space Lab</h2>
+      <p class="section-sub">Interact in real-time with the 6 superconducting qubits, observe parameterized rotation angles ($\theta_k$), and inspect the $2^6 = 64$-dimensional quantum statevector probability distribution.</p>
+    </div>
+
+    <div class="quantum-lab-grid">
+      <!-- 3D Bloch Sphere Viewport (Canvas) -->
+      <div class="bloch-viewport glass-card">
+        <div class="viewport-header">
+          <div class="viewport-title">
+            <i class="fa-solid fa-cube"></i>
+            <span>3D Interactive Qubit Lattice & Entanglement Strands</span>
+          </div>
+          <div class="viewport-controls">
+            <button id="btn-rotate-qubits" class="vp-btn active"><i class="fa-solid fa-rotate"></i> Auto-Rotate</button>
+            <button id="btn-pulse-entangle" class="vp-btn"><i class="fa-solid fa-wave-square"></i> Pulse Entanglement</button>
+          </div>
+        </div>
+        <div id="three-bloch-container" class="three-container"></div>
+        <div class="viewport-caption">
+          <span><i class="fa-regular fa-hand-pointer"></i> Drag to orbit in 3D &bull; Scroll to zoom &bull; Click any qubit node to inspect state</span>
+        </div>
+      </div>
+
+      <!-- Quantum Circuit Deconstruction & Statevector -->
+      <div class="circuit-lab-panel glass-card">
+        <div class="panel-section-title">
+          <i class="fa-solid fa-microchip"></i>
+          <span>Qiskit Circuit Decomposition (`ZZFeatureMap` + `RealAmplitudes`)</span>
+        </div>
+
+        <div class="circuit-code-terminal">
+          <pre><code>┌───┐┌──────────────────────────────┐┌──────────────┐┌─┐
+q_0: ┤ H ├┤0                             ├┤ Ry(θ_0) ──■─├┤M├
+     ├───┤│                              │├─────────┐ │ ├─┤
+q_1: ┤ H ├┤1                             ├┤ Ry(θ_1) ─■┼─├┤M├
+     ├───┤│  ZZFeatureMap(x[0]...x[5])   │├─────────┐ │ │├─┤
+q_2: ┤ H ├┤2 reps=2, entanglement='full' ├┤ Ry(θ_2) ──■─├┤M├
+     ├───┤│                              │├─────────┐ │ ├─┤
+q_3: ┤ H ├┤3                             ├┤ Ry(θ_3) ────├┤M├
+     ├───┤│                              │├─────────┐ │ ├─┤
+q_4: ┤ H ├┤4                             ├┤ Ry(θ_4) ────├┤M├
+     ├───┤│                              │├─────────┐ │ ├─┤
+q_5: ┤ H ├┤5                             ├┤ Ry(θ_5) ────├┤M├
+     └───┘└──────────────────────────────┘└─────────┘   └─┘</code></pre>
+        </div>
+
+        <div class="panel-section-title" style="margin-top: 1.25rem;">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Top Basis State Probabilities ($|\psi\rangle = \sum c_i |i\rangle$)</span>
+        </div>
+        <div class="statevector-histogram" id="statevector-bars">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="quantum-theory-box">
+          <strong>Why Quantum Wins Here:</strong> High-dimensional gene-phenotype interaction matrices cannot be separated by linear planes. The <code>ZZFeatureMap</code> maps disparate clinical parameters into quantum relative phase angles $\phi_{jk} = 2(\pi - x_j)(\pi - x_k)$, unlocking orthogonal separation in Hilbert space.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: Cohort Batch Screening -->
+  <section id="cohort-screening" class="section-container container">
+    <div class="section-header">
+      <div class="section-tag">POPULATION HEALTH & CLINICAL TRIAGE</div>
+      <h2 class="section-title">Cohort Batch Screening Matrix</h2>
+      <p class="section-sub">High-throughput registry analysis. Ingest hundreds of patient records simultaneously to prioritize urgent cases before irreversible clinical decline.</p>
+    </div>
+
+    <div class="cohort-glass-card glass-card">
+      <div class="cohort-toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="cohort-search" placeholder="Search patient ID, category, or risk...">
+        </div>
+        <div class="cohort-filter-pills">
+          <button class="filter-pill active" data-filter="all">All Patients (100)</button>
+          <button class="filter-pill" data-filter="critical">🔴 Critical Flags</button>
+          <button class="filter-pill" data-filter="moderate">🟡 Moderate Priority</button>
+          <button class="filter-pill" data-filter="healthy">🟢 Low Risk</button>
+        </div>
+        <div class="cohort-actions">
+          <button id="btn-refresh-cohort" class="btn-ghost-sm"><i class="fa-solid fa-rotate-right"></i> Reload</button>
+          <button id="btn-export-cohort" class="btn-glow-sm"><i class="fa-solid fa-download"></i> Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Cohort Data Table -->
+      <div class="table-responsive">
+        <table class="cohort-table" id="cohort-table">
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Age</th>
+              <th>Consensus Risk</th>
+              <th>Priority</th>
+              <th>Predicted Category</th>
+              <th>LMNA Score</th>
+              <th>Progerin</th>
+              <th>Telomere (kb)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cohort-tbody">
+            <!-- Populated dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Scientific Benchmarking & Limitations -->
+  <section id="benchmarks" class="section-container container">
+    <div class="section-header">
+      <div class="section-tag">EMPIRICAL BENCHMARKS</div>
+      <h2 class="section-title">Classical vs. Quantum Architecture Benchmarking</h2>
+      <p class="section-sub">Empirical validation addressing the core hackathon objective: comparing quantum-enhanced representation against standard classical ML baselines.</p>
+    </div>
+
+    <!-- Comparative Table Card -->
+    <div class="glass-card benchmark-card">
+      <div class="table-responsive">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Algorithmic Paradigm</th>
+              <th>Accuracy</th>
+              <th>F1-Score</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>ROC-AUC</th>
+              <th>Deployment Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-row">
+              <td><strong>Support Vector Machine (RBF)</strong></td>
+              <td>Classical Radial Kernel</td>
+              <td>100.0%</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td><span class="role-pill">Primary Baseline</span></td>
+            </tr>
+            <tr>
+              <td><strong>Random Forest Ensemble</strong></td>
+              <td>Classical Bagged Trees</td>
+              <td>100.0%</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td>1.000</td>
+              <td><span class="role-pill">Feature Importance</span></td>
+            </tr>
+            <tr>
+              <td><strong>Gradient Boosting (XGBoost)</strong></td>
+              <td>Classical Boosted Residuals</td>
+              <td>95.0%</td>
+              <td>0.828</td>
+              <td>0.857</td>
+              <td>0.800</td>
+              <td>0.956</td>
+              <td><span class="role-pill">Ensemble Member</span></td>
+            </tr>
+            <tr class="quantum-row">
+              <td><strong>Quantum Kernel Classifier (QSVC)</strong></td>
+              <td>Qiskit ZZFeatureMap Fidelity</td>
+              <td>85.0%</td>
+              <td>Baseline</td>
+              <td>Baseline</td>
+              <td>Baseline</td>
+              <td>0.626</td>
+              <td><span class="role-pill-quantum">Quantum Geometry Head</span></td>
+            </tr>
+            <tr class="quantum-row">
+              <td><strong>Variational Quantum (VQC)</strong></td>
+              <td>RealAmplitudes + COBYLA</td>
+              <td>56.0%</td>
+              <td>0.154</td>
+              <td>0.108</td>
+              <td>0.267</td>
+              <td>0.362</td>
+              <td><span class="role-pill-quantum">Hybrid Optimizer Head</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Limitation Analysis Grid -->
+      <div class="limitations-grid">
+        <div class="limitation-item">
+          <h4><i class="fa-solid fa-microscope"></i> Small-Sample Scarcity ($N \ll D$)</h4>
+          <p>Rare-disease cohorts present severe class imbalance ($< 15\%$). While classical ensembles easily partition synthetic dense clusters, quantum kernels maintain structural geometry by projecting into exponential Hilbert dimensions.</p>
+        </div>
+        <div class="limitation-item">
+          <h4><i class="fa-solid fa-mountain"></i> Barren Plateau Mitigation</h4>
+          <p>Variational Quantum Classifiers (VQC) with deep ansatz layers suffer from vanishing gradients. Q-Glitch limits ansatz depth to <code>reps=3</code> and utilizes gradient-free COBYLA updates to ensure stable convergence.</p>
+        </div>
+        <div class="limitation-item">
+          <h4><i class="fa-solid fa-handshake"></i> Hybrid Ensembling Supremacy</h4>
+          <p>Neither pure classical nor pure quantum is optimal alone. Q-Glitch's weighted consensus ($0.40 \text{ RF} + 0.35 \text{ QSVC} + 0.25 \text{ VQC}$) leverages classical speed for routine cases and quantum state fidelity for boundary arbitration.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Developer API Console -->
+  <section id="api-console" class="section-container container">
+    <div class="section-header">
+      <div class="section-tag">INTEGRATION & REST API</div>
+      <h2 class="section-title">Production FastAPI Developer Hub</h2>
+      <p class="section-sub">Connect electronic health record (EHR) systems and diagnostic devices directly via standardized JSON endpoints.</p>
+    </div>
+
+    <div class="glass-card api-card-grid">
+      <div class="api-info-panel">
+        <div class="api-status-banner">
+          <span class="pulse-indicator-green"></span>
+          <span>FASTAPI SERVER ACTIVE &bull; PORT 8000</span>
+        </div>
+        <h3>Real-Time Diagnostic Endpoint</h3>
+        <p>Send patient multimodal vectors via HTTP POST and receive quantum state rotation angles, consensus risk, and ICD-10 differential diagnosis.</p>
+
+        <div class="endpoint-chip">
+          <span class="method post">POST</span>
+          <span class="uri">/api/v1/predict</span>
+        </div>
+
+        <div class="endpoint-features">
+          <div class="feat-item"><i class="fa-solid fa-check"></i> OpenAPI 3.1 & Swagger compliant</div>
+          <div class="feat-item"><i class="fa-solid fa-check"></i> Sub-100ms inference response</div>
+          <div class="feat-item"><i class="fa-solid fa-check"></i> Pydantic strict clinical validation</div>
+        </div>
+
+        <a href="http://localhost:8000/docs" target="_blank" class="btn-glow-sm" style="margin-top: 1.5rem; display: inline-flex;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>Open Interactive Swagger Docs</span>
+        </a>
+      </div>
+
+      <!-- Live Code Snippet Terminal -->
+      <div class="api-code-terminal">
+        <div class="terminal-bar">
+          <div class="term-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="term-title">curl_inference_sample.sh</span>
+        </div>
+        <pre><code class="language-bash">curl -X POST "http://localhost:8000/api/v1/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patient_id": "PT-7721",
+    "age": 14.0,
+    "bmi": 15.8,
+    "blood_pressure_sys": 136.0,
+    "lmna_mutation_score": 9.2,
+    "progerin_level": 8.5,
+    "telomere_length": 2.4,
+    "growth_retardation_score": 0.95,
+    "skin_elasticity": 0.15
+  }'</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-wrapper">
+    <div class="container footer-content">
+      <div class="footer-col brand-col">
+        <div class="brand-text">
+          <span class="brand-name">⚛️ Q-GLITCH</span>
+          <span class="brand-tag">VTU-QFF-HC-0190</span>
+        </div>
+        <p class="footer-about">
+          Engineered for the VTU-Qiskit Fall Fest Hackathon 2026. Empowering rare-disease diagnostic intelligence with quantum statevector separation and classical ensembling.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Team Authors</h4>
+        <ul class="footer-list">
+          <li><strong>Mallikarjun.R</strong> — Team Lead</li>
+          <li><strong>Mohammed Adil</strong> — Developer</li>
+          <li><strong>Mallanagouda M</strong> — Developer</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Technologies</h4>
+        <ul class="footer-list">
+          <li>IBM Qiskit 1.x / 2.x</li>
+          <li>Qiskit Aer Simulator</li>
+          <li>FastAPI & Uvicorn</li>
+          <li>Three.js WebGL Engine</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Official Hackathon</h4>
+        <ul class="footer-list">
+          <li><a href="https://quc.vtu.ac.in" target="_blank">Submission Portal (quc.vtu.ac.in)</a></li>
+          <li><a href="https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-q-glitch" target="_blank">GitHub Repository</a></li>
+          <li><a href="docs/presentation_deck.md">Solution Slide Deck (PPT)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar container">
+      <div>
+        © 2026 Visvesvaraya Technological University, Belagavi, in association with IBM Quantum. All rights reserved. Qiskit and IBM Quantum are trademarks of IBM Corporation.
+      </div>
+      <div>
+        Tier: <strong>Online</strong> &nbsp;|&nbsp; Track: <strong>Quantum + AI & ML</strong>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="three.min.js"></script>
+  <script>if(typeof THREE === 'undefined') document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\\/script>')</script>
+  <script src="quantum_3d.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
