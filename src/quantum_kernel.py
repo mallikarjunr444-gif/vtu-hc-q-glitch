@@ -64,6 +64,7 @@ class QuantumKernelClassifier:
         self.feature_map_reps = feature_map_reps or CONFIG.quantum.feature_map_reps
         self.entanglement = entanglement or CONFIG.quantum.entanglement
         self.use_quantum = HAS_QISKIT
+        self.optimal_threshold = 0.5
         self.feature_map = None
         self.classifier = None
         self.is_trained = False
@@ -83,15 +84,24 @@ class QuantumKernelClassifier:
         )
 
         # ZZFeatureMap parameterized circuit: U_Φ(x) = exp(i Σ φ_k(x) Z_k Z_l)
-        self.feature_map = ZZFeatureMap(
-            feature_dimension=self.n_qubits,
-            reps=self.feature_map_reps,
-            entanglement=self.entanglement
-        )
+        try:
+            from qiskit.circuit.library import zz_feature_map
+            self.feature_map = zz_feature_map(
+                feature_dimension=self.n_qubits,
+                reps=self.feature_map_reps,
+                entanglement=self.entanglement
+            )
+        except (ImportError, TypeError):
+            self.feature_map = ZZFeatureMap(
+                feature_dimension=self.n_qubits,
+                reps=self.feature_map_reps,
+                entanglement=self.entanglement
+            )
 
-        # SVC with precomputed quantum kernel matrix
+        # SVC with precomputed quantum kernel matrix and balanced class weighting
         self.classifier = SVC(
             kernel="precomputed",
+            class_weight="balanced",
             probability=True,
             random_state=42
         )
@@ -104,6 +114,7 @@ class QuantumKernelClassifier:
         logger.warning("Using classical RBF-SVM as fallback")
         self.classifier = SVC(
             kernel="rbf",
+            class_weight="balanced",
             probability=True,
             random_state=42
         )
@@ -176,14 +187,41 @@ class QuantumKernelClassifier:
         """Scikit-learn style fit method."""
         return self.train(X_train, y_train)
 
-    def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Generate predictions for test data."""
-        assert self.is_trained, "Model must be trained before prediction"
+    def calibrate_threshold(self, X_val: np.ndarray, y_val: np.ndarray) -> float:
+        """
+        Calibrate decision threshold on validation data to maximize F1-score
+        under severe rare-disease class imbalance.
+        """
+        assert self.is_trained, "Model must be trained before threshold calibration"
+        probas = self.predict_proba(X_val)[:, 1]
+        best_t = 0.5
+        best_f1 = -1.0
+        for t in np.linspace(0.1, 0.7, 61):
+            preds = (probas >= t).astype(int)
+            f1 = float(f1_score(y_val, preds, zero_division=0))
+            if f1 > best_f1:
+                best_f1 = f1
+                best_t = float(t)
+        self.optimal_threshold = best_t
+        logger.info(
+            f"Optimal QSVM decision threshold calibrated to: {self.optimal_threshold:.3f} "
+            f"(Validation F1: {best_f1:.3f})"
+        )
+        return self.optimal_threshold
 
-        if self.use_quantum:
-            K_test = self.compute_kernel_matrix(X_test, self._X_train)
-            return self.classifier.predict(K_test)
-        return self.classifier.predict(X_test)
+    def predict(self, X_test: np.ndarray, threshold: Optional[float] = None) -> np.ndarray:
+        """Generate predictions for test data using calibrated threshold."""
+        assert self.is_trained, "Model must be trained before prediction"
+        t = threshold if threshold is not None else self.optimal_threshold
+
+        try:
+            probas = self.predict_proba(X_test)[:, 1]
+            return (probas >= t).astype(int)
+        except Exception:
+            if self.use_quantum:
+                K_test = self.compute_kernel_matrix(X_test, self._X_train)
+                return self.classifier.predict(K_test)
+            return self.classifier.predict(X_test)
 
     def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
         """Generate probability predictions for test data."""
@@ -194,10 +232,13 @@ class QuantumKernelClassifier:
             return self.classifier.predict_proba(K_test)
         return self.classifier.predict_proba(X_test)
 
-    def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    def evaluate(
+        self, X_test: np.ndarray, y_test: np.ndarray, threshold: Optional[float] = None
+    ) -> Dict[str, float]:
         """Evaluate the quantum kernel classifier."""
-        y_pred = self.predict(X_test)
+        t = threshold if threshold is not None else self.optimal_threshold
         y_proba = self.predict_proba(X_test)[:, 1]
+        y_pred = (y_proba >= t).astype(int)
 
         metrics = {
             "accuracy": float(accuracy_score(y_test, y_pred)),
@@ -211,6 +252,7 @@ class QuantumKernelClassifier:
         logger.info(
             f"  {label}: Acc={metrics['accuracy']:.4f}, "
             f"F1={metrics['f1_score']:.4f}, "
-            f"AUC={metrics['roc_auc']:.4f}"
+            f"Recall={metrics['recall']:.4f}, "
+            f"AUC={metrics['roc_auc']:.4f} (threshold={t:.3f})"
         )
         return metrics

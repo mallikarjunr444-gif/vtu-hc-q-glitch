@@ -61,21 +61,20 @@ class DataPreprocessor:
         # Step 2: Standardize features (zero mean, unit variance)
         X_scaled = self.scaler.fit_transform(X_imputed)
 
-        # Step 3: Feature selection (statistical)
+        # Step 3: Feature selection (statistical - selects top discriminative biomarkers)
         self.selector.fit(X_scaled, y)
-
-        # Step 4: PCA for quantum-compatible dimensionality
         X_selected = self.selector.transform(X_scaled)
-        X_pca = self.pca.fit_transform(X_selected)
 
-        # Step 5: Fit normalizer to [0, pi] for quantum rotation gates
-        self.normalizer.fit(X_pca)
+        # Step 4: Fit PCA for auxiliary variance tracking
+        self.pca.fit(X_selected)
+
+        # Step 5: Fit normalizer to [0, pi] for quantum rotation gates directly on discriminative features
+        self.normalizer.fit(X_selected)
 
         self._fitted = True
-        variance_explained = self.pca.explained_variance_ratio_.sum()
         logger.info(
-            f"PCA variance explained: {variance_explained:.3f} "
-            f"with {self.n_quantum_features} components"
+            f"Feature selection complete: retained {self.n_quantum_features} "
+            f"most discriminative multimodal biomarkers for quantum encoding"
         )
         return self
 
@@ -99,10 +98,9 @@ class DataPreprocessor:
         X_imputed = self.imputer.transform(X)
         X_scaled = self.scaler.transform(X_imputed)
         X_selected = self.selector.transform(X_scaled)
-        X_pca = self.pca.transform(X_selected)
 
-        # Transform to [0, pi] for quantum rotation gates
-        X_quantum = np.clip(self.normalizer.transform(X_pca), 0.0, np.pi)
+        # Transform directly to [0, pi] for quantum rotation gates
+        X_quantum = np.clip(self.normalizer.transform(X_selected), 0.0, np.pi)
         return X_quantum
 
     def fit_transform(

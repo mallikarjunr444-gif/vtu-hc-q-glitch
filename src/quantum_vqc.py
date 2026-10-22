@@ -87,17 +87,31 @@ class VariationalQuantumClassifier:
             f"optimizer={self.optimizer_name}"
         )
 
-        self.feature_map = ZZFeatureMap(
-            feature_dimension=self.n_qubits,
-            reps=self.feature_map_reps,
-            entanglement=self.entanglement
-        )
+        self.optimal_threshold = 0.5
 
-        self.ansatz = RealAmplitudes(
-            num_qubits=self.n_qubits,
-            reps=self.ansatz_reps,
-            entanglement=self.entanglement
-        )
+        try:
+            from qiskit.circuit.library import zz_feature_map, real_amplitudes
+            self.feature_map = zz_feature_map(
+                feature_dimension=self.n_qubits,
+                reps=self.feature_map_reps,
+                entanglement=self.entanglement
+            )
+            self.ansatz = real_amplitudes(
+                num_qubits=self.n_qubits,
+                reps=self.ansatz_reps,
+                entanglement=self.entanglement
+            )
+        except (ImportError, TypeError):
+            self.feature_map = ZZFeatureMap(
+                feature_dimension=self.n_qubits,
+                reps=self.feature_map_reps,
+                entanglement=self.entanglement
+            )
+            self.ansatz = RealAmplitudes(
+                num_qubits=self.n_qubits,
+                reps=self.ansatz_reps,
+                entanglement=self.entanglement
+            )
 
         self.full_circuit = self.feature_map.compose(self.ansatz)
         # Pauli-Z observable on qubit 0: 'ZII...I'
@@ -148,19 +162,28 @@ class VariationalQuantumClassifier:
             logger.info("VQC (classical MLP fallback) training complete")
             return
 
-        # Subsample for fast variational training if cohort is large
-        train_size = min(len(X_train), 50)
-        indices = np.random.RandomState(42).choice(len(X_train), train_size, replace=False)
+        # Stratified subsampling for fast variational optimization with balanced representation
+        pos_indices = np.where(y_train == 1)[0]
+        neg_indices = np.where(y_train == 0)[0]
+        n_pos = min(len(pos_indices), 25)
+        n_neg = min(len(neg_indices), 25)
+
+        rng = np.random.RandomState(42)
+        selected_pos = rng.choice(pos_indices, n_pos, replace=False) if len(pos_indices) > 0 else np.array([], dtype=int)
+        selected_neg = rng.choice(neg_indices, n_neg, replace=False) if len(neg_indices) > 0 else np.array([], dtype=int)
+        indices = np.concatenate([selected_pos, selected_neg])
+        rng.shuffle(indices)
+
         X_sub = X_train[indices]
         y_sub = y_train[indices]
 
         n_params = self.ansatz.num_parameters
-        init_weights = np.random.RandomState(42).normal(0, 0.1, size=n_params)
+        init_weights = np.zeros(n_params)
 
         def cost_function(theta):
             probs = np.array([self._predict_prob_single(x, theta) for x in X_sub])
-            # Binary Cross Entropy loss
-            bce = -np.mean(y_sub * np.log(probs) + (1 - y_sub) * np.log(1 - probs))
+            # Balanced binary cross entropy loss
+            bce = -np.mean(y_sub * np.log(probs) + (1.0 - y_sub) * np.log(1.0 - probs))
             self.training_history.append(float(bce))
             return float(bce)
 
@@ -181,6 +204,27 @@ class VariationalQuantumClassifier:
         """Scikit-learn style fit method."""
         return self.train(X_train, y_train)
 
+    def calibrate_threshold(self, X_val: np.ndarray, y_val: np.ndarray) -> float:
+        """
+        Calibrate decision threshold on validation data to maximize F1-score.
+        """
+        assert self.is_trained, "Model must be trained before threshold calibration"
+        val_probs = self.predict_proba(X_val)[:, 1]
+        best_t = 0.5
+        best_f1 = -1.0
+        for t in np.linspace(0.1, 0.9, 81):
+            preds = (val_probs >= t).astype(int)
+            f1 = float(f1_score(y_val, preds, zero_division=0))
+            if f1 > best_f1:
+                best_f1 = f1
+                best_t = float(t)
+        self.optimal_threshold = best_t
+        logger.info(
+            f"Optimal VQC decision threshold calibrated to: {self.optimal_threshold:.3f} "
+            f"(Validation F1: {best_f1:.3f})"
+        )
+        return self.optimal_threshold
+
     def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
         """Generate class probability predictions."""
         assert self.is_trained, "Model must be trained before prediction"
@@ -192,15 +236,19 @@ class VariationalQuantumClassifier:
         probs_neg = 1.0 - probs_pos
         return np.column_stack([probs_neg, probs_pos])
 
-    def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Generate binary class predictions (threshold 0.5)."""
+    def predict(self, X_test: np.ndarray, threshold: Optional[float] = None) -> np.ndarray:
+        """Generate binary class predictions using calibrated threshold."""
+        t = threshold if threshold is not None else self.optimal_threshold
         proba = self.predict_proba(X_test)[:, 1]
-        return (proba >= 0.5).astype(int)
+        return (proba >= t).astype(int)
 
-    def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    def evaluate(
+        self, X_test: np.ndarray, y_test: np.ndarray, threshold: Optional[float] = None
+    ) -> Dict[str, float]:
         """Evaluate VQC performance and return metrics."""
-        y_pred = self.predict(X_test)
+        t = threshold if threshold is not None else self.optimal_threshold
         y_proba = self.predict_proba(X_test)[:, 1]
+        y_pred = (y_proba >= t).astype(int)
 
         metrics = {
             "accuracy": float(accuracy_score(y_test, y_pred)),
@@ -214,7 +262,8 @@ class VariationalQuantumClassifier:
         logger.info(
             f"  {label}: Acc={metrics['accuracy']:.4f}, "
             f"F1={metrics['f1_score']:.4f}, "
-            f"AUC={metrics['roc_auc']:.4f}"
+            f"Recall={metrics['recall']:.4f}, "
+            f"AUC={metrics['roc_auc']:.4f} (threshold={t:.3f})"
         )
         return metrics
 

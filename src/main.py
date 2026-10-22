@@ -91,6 +91,8 @@ def run_pipeline():
 
     preprocessor = DataPreprocessor()
     X_train_classical, X_train_quantum = preprocessor.fit_transform(X_train, y_train)
+    X_val_classical = preprocessor.transform_classical(X_val)
+    X_val_quantum = preprocessor.transform_quantum(X_val)
     X_test_classical = preprocessor.transform_classical(X_test)
     X_test_quantum = preprocessor.transform_quantum(X_test)
 
@@ -117,6 +119,7 @@ def run_pipeline():
 
     qsvm = QuantumKernelClassifier()
     qsvm.train(X_train_quantum, y_train)
+    qsvm.calibrate_threshold(X_val_quantum, y_val)
     qsvm_metrics = qsvm.evaluate(X_test_quantum, y_test)
 
     circuit_text = qsvm.get_circuit_diagram()
@@ -132,13 +135,26 @@ def run_pipeline():
 
     vqc = VariationalQuantumClassifier()
     vqc.train(X_train_quantum, y_train)
+    vqc.calibrate_threshold(X_val_quantum, y_val)
     vqc_metrics = vqc.evaluate(X_test_quantum, y_test)
 
     # ──────────────────────────────────────────────
-    # Step 6: Compare and report results
+    # Step 6: Quantum Hardware Noise Simulation & Mitigation
     # ──────────────────────────────────────────────
     logger.info("=" * 50)
-    logger.info("STEP 6: Evaluation and comparison")
+    logger.info("STEP 6: Quantum Hardware Noise & Error Mitigation Benchmark")
+    logger.info("=" * 50)
+
+    from src.quantum_noise import QuantumNoiseBenchmark
+    noise_bench = QuantumNoiseBenchmark()
+    noise_results = noise_bench.run_noise_benchmark(X_test_quantum)
+    noise_chart_path = noise_bench.plot_benchmark()
+
+    # ──────────────────────────────────────────────
+    # Step 7: Compare and report results
+    # ──────────────────────────────────────────────
+    logger.info("=" * 50)
+    logger.info("STEP 7: Comprehensive Evaluation & Reporting")
     logger.info("=" * 50)
 
     evaluator = ModelEvaluator()
@@ -169,6 +185,7 @@ def run_pipeline():
         "classical": classical,
         "qsvm": qsvm,
         "vqc": vqc,
+        "noise_benchmark": noise_results,
         "preprocessor": preprocessor,
         "dataset": dataset,
         "vqc_history": vqc_history,

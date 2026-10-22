@@ -140,11 +140,27 @@ class TestQuantumModels(unittest.TestCase):
     def test_qsvm_init(self):
         qsvm = QuantumKernelClassifier()
         self.assertEqual(qsvm.n_qubits, CONFIG.quantum.n_qubits)
+        self.assertEqual(qsvm.optimal_threshold, 0.5)
 
     def test_vqc_init(self):
         vqc = VariationalQuantumClassifier()
         self.assertEqual(vqc.n_qubits, CONFIG.quantum.n_qubits)
         self.assertEqual(vqc.ansatz_reps, CONFIG.quantum.ansatz_reps)
+        self.assertEqual(vqc.optimal_threshold, 0.5)
+
+
+class TestQuantumNoise(unittest.TestCase):
+    """Test quantum hardware noise simulation and readout error mitigation."""
+
+    def test_noise_benchmark_execution(self):
+        from src.quantum_noise import QuantumNoiseBenchmark
+        bench = QuantumNoiseBenchmark(n_qubits=4, depolarizing_rates=[0.01, 0.05])
+        res = bench.run_noise_benchmark()
+        self.assertIn("avg_tvd_reduction_percent", res)
+        self.assertTrue(res["avg_tvd_reduction_percent"] > 0)
+        self.assertEqual(len(res["fidelities_unmitigated"]), 2)
+        self.assertEqual(len(res["fidelities_mitigated"]), 2)
+        self.assertGreaterEqual(res["fidelities_mitigated"][1], res["fidelities_unmitigated"][1])
 
 
 class TestEvaluator(unittest.TestCase):

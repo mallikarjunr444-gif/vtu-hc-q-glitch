@@ -575,11 +575,11 @@ def render_benchmarking(bundle):
     """)
 
     results_table = pd.DataFrame([
-        {"Model": "SVM (RBF Baseline)", "Type": "Classical", "Accuracy": "100.0%", "F1-Score": "1.000", "ROC-AUC": "1.000"},
-        {"Model": "Random Forest", "Type": "Classical", "Accuracy": "100.0%", "F1-Score": "1.000", "ROC-AUC": "1.000"},
-        {"Model": "Gradient Boosting", "Type": "Classical", "Accuracy": "95.0%", "F1-Score": "0.828", "ROC-AUC": "0.956"},
-        {"Model": "Quantum Kernel (QSVC)", "Type": "Quantum (ZZFeatureMap)", "Accuracy": "85.0%", "F1-Score": "Baseline", "ROC-AUC": "0.626"},
-        {"Model": "VQC (Variational)", "Type": "Hybrid (RealAmplitudes)", "Accuracy": "56.0%", "F1-Score": "0.154", "ROC-AUC": "0.362"},
+        {"Model": "SVM (RBF Baseline)", "Type": "Classical", "Accuracy": "100.0%", "F1-Score": "1.000", "Recall": "1.000", "ROC-AUC": "1.000"},
+        {"Model": "Random Forest", "Type": "Classical", "Accuracy": "100.0%", "F1-Score": "1.000", "Recall": "1.000", "ROC-AUC": "1.000"},
+        {"Model": "Gradient Boosting", "Type": "Classical", "Accuracy": "95.0%", "F1-Score": "0.828", "Recall": "0.800", "ROC-AUC": "0.956"},
+        {"Model": "Quantum Kernel (QSVC)", "Type": "Quantum (ZZFeatureMap)", "Accuracy": "80.0%", "F1-Score": "0.500", "Recall": "0.667", "ROC-AUC": "0.890"},
+        {"Model": "VQC (Variational)", "Type": "Hybrid (RealAmplitudes)", "Accuracy": "42.0%", "F1-Score": "0.237", "Recall": "0.600", "ROC-AUC": "0.442"},
     ]).set_index("Model")
 
     st.dataframe(results_table, use_container_width=True)
@@ -591,6 +591,16 @@ def render_benchmarking(bundle):
     with c2:
         if os.path.exists("results/vqc_training.png"):
             st.image("results/vqc_training.png", caption="VQC COBYLA Optimization Loss Curve", use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("#### ⚛️ Quantum Hardware Noise & Readout Error Mitigation (NISQ Benchmarking)")
+    st.markdown("""
+    Evaluating quantum state fidelity and measurement probabilities under realistic NISQ hardware noise
+    (multi-qubit depolarizing channels + measurement readout confusion matrices) and demonstrating
+    state preservation using **Readout Error Mitigation (TREX / Matrix Inversion)**.
+    """)
+    if os.path.exists("results/noise_mitigation_benchmark.png"):
+        st.image("results/noise_mitigation_benchmark.png", caption="Quantum Hardware Noise Resilience & Readout Error Mitigation", use_container_width=True)
 
     st.markdown("---")
     st.markdown("#### 🔬 Investigation of Scientific Limitations (Problem Statement Objective #5)")
