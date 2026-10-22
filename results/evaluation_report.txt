@@ -10,8 +10,8 @@ Model
 SVM (RBF)                  1.00  1.000000   1.000000  1.000000  1.000000
 Random Forest              1.00  1.000000   1.000000  1.000000  1.000000
 Gradient Boosting          0.95  0.827586   0.857143  0.800000  0.956078
-Quantum Kernel (QSVM)      0.85  0.000000   0.000000  0.000000  0.625882
-VQC (Variational)          0.56  0.153846   0.108108  0.266667  0.361569
+Quantum Kernel (QSVM)      0.80  0.500000   0.400000  0.666667  0.890196
+VQC (Variational)          0.42  0.236842   0.147541  0.600000  0.442353
 
 Best model (by F1-score): SVM (RBF)
 
